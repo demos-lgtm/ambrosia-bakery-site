@@ -26,7 +26,9 @@ const r = ROUTES[route];
 const canonical = new URL(canonicalPath ?? r[lang], SITE.url).href;
 const alt = { fr: new URL(r.fr, SITE.url).href, en: new URL(r.en, SITE.url).href };
 const link = (k: string) => ROUTES[k][lang];
-const og = ogImage && process.env.PREVIEW !== "1" ? new URL(ogImage, SITE.url).href : new URL("/brand/og-default.jpg", SITE.url).href;
+// Share image (OG/Twitter): always the Ambrosia logo on brand red, for every page.
+// (Per-page ogImage props are intentionally ignored; revert to the line in git history to re-enable per-page cake photos.)
+const og = new URL("/brand/og-default.jpg", SITE.url).href;
 
 const bakery = {
   "@context": "https://schema.org", "@type": "Bakery", "@id": `${SITE.url}/#bakery`,
