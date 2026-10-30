@@ -38,7 +38,7 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 400; margin: 0; text
 /* Header */
 .site-head { position: sticky; top: env(safe-area-inset-top, 0px); z-index: var(--z-header); background: rgb(251 248 243 / .92); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-bottom: 1px solid var(--rule); }
 body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 70; background: var(--cream); }
-.site-head .wrap { display: flex; align-items: center; gap: 20px; height: 68px; }
+.site-head .wrap { display: flex; align-items: center; gap: 20px; height: 58px; }
 .brand img { height: 26px; width: auto; }
 .nav { display: flex; gap: 22px; margin-left: auto; font-size: 14.5px; }
 .nav a { text-decoration: none; padding: 6px 0; border-bottom: 1px solid transparent; transition: border-color var(--dur-base); }
@@ -52,7 +52,7 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
   .site-head .nav { display: none; }
   .menu-btn { display: inline-block; }
   .site-head .langs { margin-left: 0; }
-  .drawer[data-open="true"] { display: grid; gap: 4px; position: fixed; inset: calc(68px + env(safe-area-inset-top, 0px)) 0 0; z-index: var(--z-overlay); background: var(--cream); padding: 16px max(16px, env(safe-area-inset-right, 0px)) 120px max(16px, env(safe-area-inset-left, 0px)); overflow-y: auto; align-content: start; }
+  .drawer[data-open="true"] { display: grid; gap: 4px; position: fixed; inset: calc(58px + env(safe-area-inset-top, 0px)) 0 0; z-index: var(--z-overlay); background: var(--cream); padding: 16px max(16px, env(safe-area-inset-right, 0px)) 120px max(16px, env(safe-area-inset-left, 0px)); overflow-y: auto; align-content: start; }
   .drawer a { font-family: var(--font-display); font-size: 28px; color: var(--burgundy); text-decoration: none; padding: 10px 0; border-bottom: 1px solid var(--rule); }
 }
 
@@ -230,8 +230,8 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 /* Mobile action bar */
 .actionbar { display: none; }
 @media (max-width: 860px) {
-  .actionbar { display: grid; grid-template-columns: 1fr 1.4fr 1fr; position: fixed; left: 0; right: 0; bottom: 0; z-index: var(--z-actionbar); background: var(--cream); border-top: 1px solid var(--rule); padding: 8px max(10px, env(safe-area-inset-right, 0px)) calc(8px + env(safe-area-inset-bottom, 0px)) max(10px, env(safe-area-inset-left, 0px)); gap: 8px; box-shadow: 0 -10px 30px -18px rgb(61 7 5 / .4); }
-  .actionbar a, .actionbar button { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; height: 52px; border-radius: var(--radius); font: 500 11.5px var(--font-text); letter-spacing: .12em; text-transform: uppercase; text-decoration: none; color: var(--burgundy); border: 1px solid var(--rule); background: var(--white); cursor: pointer; }
+  .actionbar { display: grid; grid-template-columns: 1fr 1.4fr 1fr; position: fixed; left: 0; right: 0; bottom: 0; z-index: var(--z-actionbar); background: var(--cream); border-top: 1px solid var(--rule); padding: 7px max(10px, env(safe-area-inset-right, 0px)) calc(7px + env(safe-area-inset-bottom, 0px)) max(10px, env(safe-area-inset-left, 0px)); gap: 8px; box-shadow: 0 -10px 30px -18px rgb(61 7 5 / .4); }
+  .actionbar a, .actionbar button { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; height: 44px; border-radius: var(--radius); font: 500 11.5px var(--font-text); letter-spacing: .12em; text-transform: uppercase; text-decoration: none; color: var(--burgundy); border: 1px solid var(--rule); background: var(--white); cursor: pointer; }
   .actionbar .main { background: var(--burgundy); border-color: var(--burgundy); color: var(--cream); }
   /* once the chat has been opened, its bubble gets its own slot at the right instead of covering "Call" */
   .chat-on .actionbar { padding-right: calc(78px + env(safe-area-inset-right, 0px)); transition: padding .3s var(--ease-out); }
@@ -377,7 +377,7 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .rail-nav { display: flex; gap: 8px; }
 .rail-nav button { width: 46px; height: 46px; border-radius: 2px; border: 1px solid var(--rule); background: var(--white); color: var(--burgundy); font-size: 20px; cursor: pointer; }
 .seq { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(24px, 5vw, 72px); }
-.stage { position: sticky; top: calc(68px + 24px + env(safe-area-inset-top, 0px)); height: min(78vh, 720px); border-radius: 2px; overflow: hidden; background: var(--paper-deep); }
+.stage { position: sticky; top: calc(58px + 24px + env(safe-area-inset-top, 0px)); height: min(78vh, 720px); border-radius: 2px; overflow: hidden; background: var(--paper-deep); }
 .stage img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transform: scale(1.04); transition: opacity .8s var(--ease-out), transform 1.6s var(--ease-out); }
 .stage img.on { opacity: 1; transform: none; }
 .stage .tier { position: absolute; left: 16px; bottom: 16px; background: rgb(251 248 243 / .94); border-radius: 2px; padding: 10px 14px; display: flex; gap: 10px; align-items: center; font-size: 13px; letter-spacing: .14em; text-transform: uppercase; color: var(--burgundy); }
