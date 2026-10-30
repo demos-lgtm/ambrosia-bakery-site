@@ -37,6 +37,13 @@ export function photosFor(o: Occasion): Photo[] {
   const moved = new Set(Object.entries(META).filter(([, m]) => m.move).map(([k]) => k));
   const out = list.filter((p) => !moved.has(p.key) || META[p.key].move === "kids");
   for (const k of o.include ?? []) if (byKey.has(k)) out.push(byKey.get(k)!);
+  // Pull photos from any folder by tag (e.g. character cakes onto the kids page)
+  const tagsFrom = o.tagsFrom ?? [];
+  if (tagsFrom.length) {
+    const have = new Set(out.map((x) => x.key));
+    for (const x of ALL)
+      if (!have.has(x.key) && !(o.exclude ?? []).includes(x.key) && x.tags.some((t) => tagsFrom.includes(t))) out.push(x);
+  }
   // cover first, then the hand-picked "featured" order (best first), then the rest by number
   const rank = (k: string) => (k === o.cover ? -1 : (o.featured ?? []).includes(k) ? (o.featured ?? []).indexOf(k) : 1e4);
   return out.sort((a, b) => rank(a.key) - rank(b.key) || a.key.localeCompare(b.key));

@@ -22,8 +22,8 @@ const related = o.related.map((r) => OCCASIONS.find((x) => x.key === r)!);
 const relCovers = await Promise.all(related.map(async (r) => ({ r, p: photo(r.cover) })));
 const url = new URL(ROUTES[k][lang], SITE.url).href;
 const gh = lang === "fr"
-  ? { birthday: ["Nos gâteaux", "d'anniversaire"], themed: ["Nos gâteaux", "thématiques"], baptism: ["Nos gâteaux de", "baptême et communion"], babyshower: ["Nos gâteaux de", "baby shower"], graduation: ["Nos gâteaux de", "finissants"], engagement: ["Fiançailles et", "anniversaires de mariage"] }
-  : { birthday: ["Our", "birthday cakes"], themed: ["Our", "themed cakes"], baptism: ["Our baptism and", "communion cakes"], babyshower: ["Our", "baby shower cakes"], graduation: ["Our", "graduation cakes"], engagement: ["Engagement and", "anniversary cakes"] };
+  ? { birthday: ["Nos gâteaux", "d'anniversaire"], kids: ["Nos gâteaux", "pour enfants"], baptism: ["Nos gâteaux de", "baptême et communion"], babyshower: ["Nos gâteaux de", "baby shower"], graduation: ["Nos gâteaux de", "finissants"], engagement: ["Fiançailles et", "anniversaires de mariage"] }
+  : { birthday: ["Our", "birthday cakes"], kids: ["Our", "kids' cakes"], baptism: ["Our baptism and", "communion cakes"], babyshower: ["Our", "baby shower cakes"], graduation: ["Our", "graduation cakes"], engagement: ["Engagement and", "anniversary cakes"] };
 
 const schema = [
   {

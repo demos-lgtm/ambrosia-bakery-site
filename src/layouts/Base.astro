@@ -56,11 +56,11 @@ const breadcrumb = crumbs.length ? {
 const parentCrumb = [...crumbs].slice(0, -1).reverse().find((c) => c.route);
 const up = parentCrumb ? { name: parentCrumb.name, href: link(parentCrumb.route!) } : { name: t.home, href: link("home") };
 const ld = [bakery, ...(breadcrumb ? [breadcrumb] : []), ...schema];
-const GROUP: Record<string, string[]> = { custom: ["birthday","themed","baptism","babyshower","graduation","engagement","catalogue"], wedding: ["weddingForm","sweet"], pastries: ["cheesecake","menu"], visit: ["delivery","faq"] };
+const GROUP: Record<string, string[]> = { custom: ["birthday","kids","baptism","babyshower","graduation","engagement","catalogue"], wedding: ["weddingForm","sweet"], pastries: ["cheesecake","menu"], visit: ["delivery","faq"] };
 const isActive = (k: string) => route === k || (GROUP[k] ?? []).includes(route);
 const DRAWER: [string, string[]][] = [
   ["wedding", ["wedding","weddingForm","sweet"]],
-  ["custom", ["custom","birthday","themed","baptism","babyshower","graduation","engagement","catalogue"]],
+  ["custom", ["custom","birthday","kids","baptism","babyshower","graduation","engagement","catalogue"]],
   ["pastries", ["pastries","cheesecake","menu"]],
   ["story", ["gallery","reviews","story","delivery","visit","faq"]],
 ];
@@ -140,7 +140,7 @@ const DRAWER: [string, string[]][] = [
         <p>{SITE.name}<br>{lang === "fr" ? SITE.street : SITE.streetEn}, {SITE.city} ({SITE.regionLong}) {SITE.postal}<br>{SITE.phone}</p>
       </div>
       <div><span class="label">{t.footerCakes}</span><ul>
-        {["wedding","sweet","custom","birthday","themed","baptism","babyshower","graduation","engagement","catalogue"].map((k) => <li><a href={link(k)}>{PAGES[k][lang]}</a></li>)}
+        {["wedding","sweet","custom","birthday","kids","baptism","babyshower","graduation","engagement","catalogue"].map((k) => <li><a href={link(k)}>{PAGES[k][lang]}</a></li>)}
       </ul></div>
       <div><span class="label">{lang === "fr" ? "La pâtisserie" : "The bakery"}</span><ul>
         {["pastries","cheesecake","menu","gallery","reviews","story","delivery","faq"].map((k) => <li><a href={link(k)}>{PAGES[k][lang]}</a></li>)}

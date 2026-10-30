@@ -9,9 +9,10 @@ type Copy = {
   faq: Faq[]; crumb: string; cardTitle: string; cardLine: string;
 };
 export type Occasion = {
-  key: "birthday" | "themed" | "baptism" | "babyshower" | "graduation" | "engagement";
+  key: "birthday" | "kids" | "baptism" | "babyshower" | "graduation" | "engagement";
   folders: string[];         // gallery folders feeding this page
   include?: string[];        // extra photo keys moved in from another folder
+  tagsFrom?: string[];       // also pull photos carrying any of these tags, from any folder
   exclude?: string[];        // photo keys moved out
   cover: string;             // photo key for the hero
   featured?: string[];       // shown first in the portfolio, in this order (best first); the rest follow by number
@@ -86,109 +87,112 @@ export const HUB = {
 
 export const OCCASIONS: Occasion[] = [
   {
-    key: "birthday", folders: ["anniversaire-adulte", "anniversaire-enfant"], exclude: ["anniversaire-adulte/005"], cover: "anniversaire-adulte/028",
-    featured: ["anniversaire-adulte/022", "anniversaire-adulte/021", "anniversaire-adulte/011", "anniversaire-adulte/034", "anniversaire-adulte/041", "anniversaire-adulte/019", "anniversaire-enfant/006", "anniversaire-adulte/023", "anniversaire-adulte/044", "anniversaire-adulte/039", "anniversaire-adulte/035", "anniversaire-enfant/018", "anniversaire-adulte/029", "anniversaire-adulte/017", "anniversaire-adulte/008", "anniversaire-adulte/024", "anniversaire-enfant/008", "anniversaire-adulte/012", "anniversaire-adulte/036", "anniversaire-adulte/018", "anniversaire-enfant/016", "anniversaire-enfant/017", "anniversaire-adulte/040", "anniversaire-adulte/004", "anniversaire-enfant/007", "anniversaire-adulte/026", "anniversaire-adulte/027", "anniversaire-adulte/013"],
+    key: "birthday", folders: ["anniversaire-adulte"], tagsFrom: ["fashion", "grownup", "sports"], exclude: ["anniversaire-adulte/005"], cover: "anniversaire-adulte/028",
+    featured: ["anniversaire-adulte/022", "anniversaire-adulte/021", "anniversaire-adulte/011", "anniversaire-adulte/034", "anniversaire-adulte/041", "anniversaire-adulte/019", "anniversaire-adulte/023", "anniversaire-adulte/044", "anniversaire-adulte/039", "anniversaire-adulte/035", "anniversaire-adulte/029", "anniversaire-adulte/017", "anniversaire-adulte/008", "anniversaire-adulte/024", "anniversaire-adulte/012", "anniversaire-adulte/036", "anniversaire-adulte/018", "anniversaire-adulte/040", "anniversaire-adulte/004", "anniversaire-adulte/026", "anniversaire-adulte/027", "anniversaire-adulte/013"],
     quote: { q: "Nermin, starting with your counselling to choose the cake, you did a superb job. Care to details, quality of the work decorating, working with real roses.", n: "Andrei M.", o: "Avis Google" },
-    related: ["themed", "baptism", "babyshower"],
+    related: ["kids", "baptism", "babyshower"],
     fr: {
       title: "Gâteaux d'anniversaire à Laval | Pâtisserie Ambrosia",
-      meta: "Gâteaux d'anniversaire sur mesure à Laval, enfants et adultes : 1er anniversaire, 18, 30, 40 ou 90 ans. 26 saveurs. Commandez 7 jours d'avance.",
-      eyebrow: "Gâteaux d'anniversaire · Laval", h1: "Gâteaux d'anniversaire à Laval,", h1em: "de 1 à 90 ans",
-      intro: "Une première dent, un « Dirty Thirty », les 88 ans de grand-maman : on a fait tous les chiffres. Voici des gâteaux d'anniversaire sortis de notre cuisine du boulevard Samson.",
+      meta: "Gâteaux d'anniversaire sur mesure à Laval pour adultes : 18, 30, 40 ou 90 ans, vintage, fleurs fraîches, fruits, mode et luxe. 26 saveurs. Commandez 7 jours d'avance.",
+      eyebrow: "Gâteaux d'anniversaire · Laval", h1: "Gâteaux d'anniversaire à Laval,", h1em: "pour les grands",
+      intro: "Un « Dirty Thirty », les 50 ans d'un ami, les 88 ans de grand-maman : on a fait tous les chiffres. Voici des gâteaux d'anniversaire sortis de notre cuisine du boulevard Samson.",
       story: [
-        "Pour les petits, on aime les animaux en sucre, les licornes, les dinosaures et les gâteaux « first tooth ». Pour les grands, les gâteaux vintage à la poche, les cœurs « Forty & Fabulous », les fleurs fraîches et les fruits de saison.",
-        "Envoyez-nous une photo qui vous plaît, choisissez la finition et la saveur, et l'équipe ajuste les détails avec vous au téléphone. Un message sur le gâteau? Jusqu'à 120 caractères, accents compris.",
+        "Les gâteaux vintage à la poche, les cœurs « Forty & Fabulous », les fleurs fraîches et les fruits de saison : la façon la plus simple de faire un beau gâteau d'adulte.",
+        "On fait aussi les thèmes des grands : un sac de designer pour les 30 ans, une bouteille pour les 50 ans, le logo de son équipe pour un fan de hockey. Envoyez-nous une photo, on ajuste les détails avec vous au téléphone.",
       ],
       ideas: [
         { t: "Les gâteaux vintage", d: "Cœurs, rubans et bordures à la poche, la tendance « Dirty Thirty » et « This is 40 »." },
         { t: "Les chiffres qui comptent", d: "18, 40, 70, 88 ans : le chiffre en vedette, en or, en fruits ou en fleurs." },
-        { t: "Pour maman et grand-maman", d: "Roses fraîches, macarons et « Happy Birthday Mom » en lettres dorées." },
+        { t: "Mode, luxe et sports", d: "Sacs, montres, bouteilles et logos d'équipes, reproduits en pâte à sucre." },
       ],
-      filters: [{ tag: "adult", label: "Adultes" }, { tag: "kids", label: "Enfants" }, { tag: "first", label: "Premier anniversaire" }, { tag: "floral", label: "Fleurs" }, { tag: "vintage", label: "Vintage" }, { tag: "fruit", label: "Fruits frais" }],
+      filters: [{ tag: "floral", label: "Fleurs" }, { tag: "vintage", label: "Vintage" }, { tag: "fruit", label: "Fruits frais" }, { tag: "fashion", label: "Mode et luxe" }, { tag: "sports", label: "Sports" }, { tag: "grownup", label: "Thématiques" }],
       faq: [
         { q: "Combien de temps d'avance dois-je commander un gâteau d'anniversaire?", a: leadFr + " Pour un modèle déjà dessiné, passez voir notre catalogue en boutique." },
         servFr,
         { q: "Pouvez-vous écrire un message sur le gâteau?", a: "Oui, jusqu'à 120 caractères. Les accents et le français sont parfaits; on ne reproduit pas les émojis, alors on les écrit en mots. On vous relit le texte pour éviter toute faute." },
+        { q: "Et pour un gâteau d'enfant?", a: "Les personnages, les superhéros et les jeux vidéo sont sur notre page de gâteaux d'anniversaire pour enfants." },
         allergyFr, payFr,
       ],
-      crumb: "Gâteaux d'anniversaire", cardTitle: "Anniversaire", cardLine: "Enfants et adultes, de 1 à 90 ans",
+      crumb: "Gâteaux d'anniversaire", cardTitle: "Anniversaire", cardLine: "Pour les grands, de 18 à 90 ans",
     },
     en: {
       title: "Birthday Cakes in Laval | Pâtisserie Ambrosia",
-      meta: "Custom birthday cakes in Laval: first birthdays, 18th, 30th, 40th and 90th, for kids and adults. Real Ambrosia cakes, 26 flavours. Order 7 days ahead.",
-      eyebrow: "Birthday cakes · Laval", h1: "Birthday cakes in Laval,", h1em: "from 1 to 90",
-      intro: "A first tooth, a \"Dirty Thirty\", Grandma's 88th: we've baked every number. These are birthday cakes straight from our kitchen on Samson Boulevard.",
+      meta: "Custom birthday cakes in Laval for adults: 18th, 30th, 40th and 90th, vintage, fresh flowers, fruit, fashion and luxury. 26 flavours. Order 7 days ahead.",
+      eyebrow: "Birthday cakes · Laval", h1: "Birthday cakes in Laval,", h1em: "for grown-ups",
+      intro: "A Dirty Thirty, a friend's 50th, Grandma's 88th: we've baked every number. These are birthday cakes straight from our kitchen on Samson Boulevard.",
       story: [
-        "For little ones we love sugar animals, unicorns, dinosaurs and \"first tooth\" cakes. For grown-ups, piped vintage cakes, \"Forty & Fabulous\" hearts, fresh flowers and seasonal fruit.",
-        "Send us a photo you love, choose the finish and flavour, and the team fine-tunes the details with you by phone. A message on the cake? Up to 120 characters, accents included.",
+        "Piped vintage cakes, Forty & Fabulous hearts, fresh flowers and seasonal fruit: the simplest way to a beautiful grown-up cake.",
+        "We do grown-up themes too: a designer bag for a 30th, a bottle for a 50th, a team logo for a hockey fan. Send us a photo and we fine-tune the details with you by phone.",
       ],
       ideas: [
-        { t: "Vintage cakes", d: "Hearts, ribbons and piped borders: the \"Dirty Thirty\" and \"This is 40\" look." },
+        { t: "Vintage cakes", d: "Hearts, ribbons and piped borders: the Dirty Thirty and This is 40 look." },
         { t: "The numbers that matter", d: "18, 40, 70, 88: the number takes centre stage in gold, fruit or flowers." },
-        { t: "For Mom and Grandma", d: "Fresh roses, macarons and \"Happy Birthday Mom\" in gold lettering." },
+        { t: "Fashion, luxury and sports", d: "Handbags, watches, bottles and team logos, recreated in fondant." },
       ],
-      filters: [{ tag: "adult", label: "Adults" }, { tag: "kids", label: "Kids" }, { tag: "first", label: "First birthday" }, { tag: "floral", label: "Flowers" }, { tag: "vintage", label: "Vintage" }, { tag: "fruit", label: "Fresh fruit" }],
+      filters: [{ tag: "floral", label: "Flowers" }, { tag: "vintage", label: "Vintage" }, { tag: "fruit", label: "Fresh fruit" }, { tag: "fashion", label: "Fashion and luxury" }, { tag: "sports", label: "Sports" }, { tag: "grownup", label: "Themed" }],
       faq: [
         { q: "How far ahead should I order a birthday cake?", a: leadEn + " For a ready-designed cake, come see our catalogue in store." },
         servEn,
         { q: "Can you write a message on the cake?", a: "Yes, up to 120 characters. Accents and French are fine; we don't reproduce emoji, so we write them out in words. We read the text back to you to avoid typos." },
+        { q: "What about a cake for a child?", a: "Characters, superheroes and video games live on our kids' birthday cakes page." },
         allergyEn, payEn,
       ],
-      crumb: "Birthday cakes", cardTitle: "Birthday", cardLine: "Kids and adults, from 1 to 90",
+      crumb: "Birthday cakes", cardTitle: "Birthday", cardLine: "For grown-ups, 18 to 90",
     },
   },
   {
-    key: "themed", folders: ["thematiques"], cover: "thematiques/112",
+    key: "kids", folders: ["anniversaire-enfant"], tagsFrom: ["characters", "games"], exclude: ["thematiques/096", "thematiques/109", "thematiques/173"], cover: "thematiques/112",
+    featured: ["anniversaire-enfant/006", "anniversaire-enfant/018", "anniversaire-enfant/008", "anniversaire-enfant/016", "anniversaire-enfant/017", "anniversaire-enfant/007"],
     related: ["birthday", "babyshower", "graduation"],
     fr: {
-      title: "Gâteaux thématiques à Laval | Pâtisserie Ambrosia",
-      meta: "Gâteaux thématiques à Laval : personnages, jeux vidéo, équipes sportives, mode et luxe. Plus de 200 gâteaux réalisés. Commandez 7 jours d'avance.",
-      eyebrow: "Personnages · jeux · sports · mode", h1: "Gâteaux thématiques à Laval,", h1em: "leur héros préféré",
-      intro: "La Reine des neiges, Pat' Patrouille, Pokémon, Mario, les Canadiens, un sac Chanel ou une montre Rolex : dites-nous ce qu'ils aiment, on le met sur le gâteau.",
+      title: "Gâteaux d'anniversaire pour enfants à Laval | Pâtisserie Ambrosia",
+      meta: "Gâteaux d'anniversaire pour enfants à Laval : personnages, superhéros, jeux vidéo, licornes et premier anniversaire. Gâteaux thématiques faits sur place. 7 jours d'avance.",
+      eyebrow: "Personnages · superhéros · jeux", h1: "Gâteaux d'anniversaire pour enfants,", h1em: "leur héros préféré",
+      intro: "La Reine des neiges, Pat' Patrouille, Pokémon, Mario, une licorne ou un dinosaure : dites-nous ce qu'ils aiment, on le met sur le gâteau.",
       story: [
         "Les figurines sculptées en sucre, les personnages peints à la main, les logos découpés au millimètre : chaque gâteau thématique est fait sur place, dans notre cuisine du boulevard Samson.",
-        "Ce n'est pas que pour les enfants. Un baril de whisky pour les 50 ans, une boîte à cigares pour les 60 ans, l'équipe de soccer de Pappou ou un sac de designer pour les 30 ans : les grands aussi ont leur thème.",
+        "Du premier anniversaire « smash cake » aux 12 ans de votre gamer : envoyez une photo d'inspiration et l'équipe ajuste les détails avec vous au téléphone.",
       ],
       ideas: [
-        { t: "Personnages", d: "Disney, Pixar, superhéros, dessins animés : en figurines de sucre ou peints à la main." },
-        { t: "Jeux et sports", d: "Fortnite, Minecraft, Pokémon, Canadiens, Panathinaïkos : leur passion en gâteau." },
-        { t: "Mode et luxe", d: "Sacs, parfums, montres et espadrilles reproduits en pâte à sucre." },
+        { t: "Personnages et superhéros", d: "Disney, Pixar, superhéros, dessins animés : en figurines de sucre ou peints à la main." },
+        { t: "Jeux et jouets", d: "Fortnite, Minecraft, Pokémon, LEGO : leur passion en gâteau." },
+        { t: "Premier anniversaire", d: "Smash cakes, licornes, animaux en sucre et gâteaux « first tooth »." },
       ],
       filters: [
         { tag: "characters", label: "Personnages" }, { tag: "games", label: "Jeux et jouets" },
-        { tag: "sports", label: "Sports" }, { tag: "fashion", label: "Mode et luxe" }, { tag: "grownup", label: "Pour les grands" },
+        { tag: "first", label: "Premier anniversaire" }, { tag: "kids", label: "Classiques enfants" },
       ],
       faq: [
         { q: "Pouvez-vous faire le personnage préféré de mon enfant?", a: "Oui. Envoyez une photo d'inspiration à notre assistant en ligne et l'équipe vous rappelle pour confirmer les détails : figurine en sucre, image peinte ou décor imprimé." },
         { q: "Combien de temps d'avance commander un gâteau thématique?", a: leadFr + " Les figurines sculptées demandent du temps : plus tôt, c'est mieux." },
         servFr, payFr, allergyFr,
       ],
-      crumb: "Gâteaux thématiques", cardTitle: "Thématiques", cardLine: "Personnages, jeux, sports, mode",
+      crumb: "Anniversaire enfant", cardTitle: "Anniversaire enfant", cardLine: "Personnages, superhéros, jeux",
     },
     en: {
-      title: "Themed Cakes in Laval | Pâtisserie Ambrosia",
-      meta: "Themed cakes in Laval: characters, video games, sports teams, fashion and luxury. Over 200 cakes made in our kitchen. Order 7 days ahead.",
-      eyebrow: "Characters · games · sports · fashion", h1: "Themed cakes in Laval,", h1em: "starring their favourite",
-      intro: "Frozen, PAW Patrol, Pokémon, Mario, the Habs, a Chanel bag or a Rolex: tell us what they love and we'll put it on the cake.",
+      title: "Kids' Birthday Cakes in Laval | Pâtisserie Ambrosia",
+      meta: "Kids' birthday cakes in Laval: characters, superheroes, video games, unicorns and first birthdays. Themed cakes made on site. Order 7 days ahead.",
+      eyebrow: "Characters · superheroes · games", h1: "Kids' birthday cakes in Laval,", h1em: "starring their favourite",
+      intro: "Frozen, PAW Patrol, Pokémon, Mario, a unicorn or a dinosaur: tell us what they love and we'll put it on the cake.",
       story: [
         "Sugar-sculpted figurines, hand-painted characters, logos cut to the millimetre: every themed cake is made on site, in our kitchen on Samson Boulevard.",
-        "It isn't just for kids. A whisky barrel for a 50th, a cigar box for a 60th, Pappou's soccer club or a designer bag for a 30th: grown-ups get their theme too.",
+        "From a first-birthday smash cake to your 12-year-old gamer: send an inspiration photo and the team fine-tunes the details with you by phone.",
       ],
       ideas: [
-        { t: "Characters", d: "Disney, Pixar, superheroes, cartoons: as sugar figurines or hand-painted." },
-        { t: "Games and sports", d: "Fortnite, Minecraft, Pokémon, the Habs, Panathinaikos: their passion as a cake." },
-        { t: "Fashion and luxury", d: "Handbags, perfume, watches and sneakers, recreated in fondant." },
+        { t: "Characters and superheroes", d: "Disney, Pixar, superheroes, cartoons: as sugar figurines or hand-painted." },
+        { t: "Games and toys", d: "Fortnite, Minecraft, Pokémon, LEGO: their passion as a cake." },
+        { t: "First birthdays", d: "Smash cakes, unicorns, sugar animals and first tooth cakes." },
       ],
       filters: [
         { tag: "characters", label: "Characters" }, { tag: "games", label: "Games and toys" },
-        { tag: "sports", label: "Sports" }, { tag: "fashion", label: "Fashion and luxury" }, { tag: "grownup", label: "For grown-ups" },
+        { tag: "first", label: "First birthday" }, { tag: "kids", label: "Kids' classics" },
       ],
       faq: [
         { q: "Can you make my child's favourite character?", a: "Yes. Send an inspiration photo to our online assistant and the team will call you to confirm the details: sugar figurine, painted image or printed decoration." },
         { q: "How far ahead should I order a themed cake?", a: leadEn + " Sculpted figurines take time, so earlier is better." },
         servEn, payEn, allergyEn,
       ],
-      crumb: "Themed cakes", cardTitle: "Themed", cardLine: "Characters, games, sports, fashion",
+      crumb: "Kids' birthday", cardTitle: "Kids' birthday", cardLine: "Characters, superheroes, games",
     },
   },
   {

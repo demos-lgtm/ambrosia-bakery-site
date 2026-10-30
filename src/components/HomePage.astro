@@ -31,7 +31,7 @@ const og = PREVIEW ? null : await getImage({ src: photo(COVERS.wedding).img, wid
 
 const occLines: Record<string, { fr: [string, string]; en: [string, string] }> = {
   birthday: { fr: ["Les belles années", "18, 30, 50, 90 ans : on a fait tous les chiffres."], en: ["The good years", "18, 30, 50, 90: we've done every number."] },
-  themed: { fr: ["Leur héros préféré", "Personnages, jeux, sports et sacs de designer."], en: ["Their favourite hero", "Characters, games, sports and designer bags."] },
+  kids: { fr: ["Leur héros préféré", "Personnages, superhéros, jeux et premiers anniversaires."], en: ["Their favourite hero", "Characters, superheroes, games and first birthdays."] },
   baptism: { fr: ["Une croix, son prénom", "Pour les grandes journées à l'église et à la maison."], en: ["A cross, their name", "For the big days at church and at home."] },
   babyshower: { fr: ["Fille ou garçon?", "Lettres dorées, fleurs et révélations."], en: ["Boy or girl?", "Gold letters, flowers and reveals."] },
   graduation: { fr: ["Bravo, diplômé·e", "Mortiers, diplômes et l'année de la promo."], en: ["Congrats, grad", "Mortarboards, diplomas and the class year."] },
@@ -166,7 +166,7 @@ const desc = L("Pâtisserie familiale à Laval depuis 1995 : gâteaux de mariage
       <div class="rail-head"><div class="sec-head"><span class="label">{L("Gâteaux sur mesure pour toutes les fêtes", "Custom cakes for every celebration")}</span><h2>{L("Quelle est", "What's the")} <em>{L("l'occasion?", "occasion?")}</em></h2><p>{L("Des idées, pas des modèles : chaque gâteau est créé sur mesure, d'après votre idée.", "Ideas, not set models: every cake is made to order, from your idea.")}</p></div>
         <div class="rail-nav"><button type="button" aria-label={L("Précédent", "Previous")} data-rail="-1">←</button><button type="button" aria-label={L("Suivant", "Next")} data-rail="1">→</button></div></div>
       <div class="rail" id="rail" tabindex="0" aria-label={L("Occasions", "Occasions")}>
-        {[...OCCASIONS].sort((a, b) => (a.key === "themed" ? -1 : b.key === "themed" ? 1 : 0)).map((o) => (
+        {[...OCCASIONS].sort((a, b) => (a.key === "kids" ? -1 : b.key === "kids" ? 1 : 0)).map((o) => (
           <a class="occ" href={ROUTES[o.key][lang]}>
             <Photo k={o.key === "birthday" ? "anniversaire-adulte/028" : o.cover} lang={lang} sizes="(max-width: 700px) 76vw, 25vw" widths={[400, 720]} />
             <span class="cap"><b>{occLines[o.key][lang][0]}</b><span>{occLines[o.key][lang][1]}</span><i>{o[lang].cardTitle} →</i></span>
