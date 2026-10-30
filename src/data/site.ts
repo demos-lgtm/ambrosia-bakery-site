@@ -1,6 +1,7 @@
 // Single source for business facts (from Knowledge Base v2, Jul 13 2026) and routes.
 export const SITE = {
-  url: "https://patisserieambrosia.com",
+  // TEMP: domain not purchased yet. Revert to "https://patisserieambrosia.com" once it's live and pointed at Netlify.
+  url: "https://cool-salamander-503d9b.netlify.app",
   name: "Pâtisserie Ambrosia",
   altName: "Ambrosia Bakery",
   street: "4657, boul. Samson",
