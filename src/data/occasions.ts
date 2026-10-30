@@ -24,8 +24,8 @@ const leadFr = "Commandez au moins 7 jours avant la fête. Plus tôt? Appelez-no
 const leadEn = "Order at least 7 days before the party. Sooner? Call us at 450 686-2950.";
 const allergyFr: Faq = { q: "Faites-vous des gâteaux sans gluten ou sans noix?", a: "Nous ne faisons pas de gâteaux sans gluten ni sans produits laitiers, et notre cuisine est partagée : nous ne pouvons pas garantir un gâteau sans noix. En cas d'allergie grave, appelez-nous au 450 686-2950 pour en parler avec l'équipe." };
 const allergyEn: Faq = { q: "Do you make gluten-free or nut-free cakes?", a: "We don't make gluten-free or dairy-free cakes, and our kitchen is shared, so we can't guarantee a nut-free cake. For a severe allergy, call us at 450 686-2950 to talk it through with the team." };
-const servFr: Faq = { q: "Combien de portions me faut-il?", a: "Comptez une portion par invité. Le minimum est de 15 portions, par tranches de 5 (15, 20, 25…). Un gâteau à 2 ou 3 étages demande au moins 30 portions, et les étages ne coûtent rien de plus." };
-const servEn: Faq = { q: "How many servings do I need?", a: "Plan one serving per guest. The minimum is 15 servings, in steps of 5 (15, 20, 25…). A 2- or 3-tier cake needs at least 30 servings, and tiers cost nothing extra." };
+const servFr: Faq = { q: "Combien de portions me faut-il?", a: "Comptez une portion par invité. Le minimum est de 15 portions, par tranches de 5 (15, 20, 25…). Un gâteau à 2 ou 3 étages demande au moins 30 portions." };
+const servEn: Faq = { q: "How many servings do I need?", a: "Plan one serving per guest. The minimum is 15 servings, in steps of 5 (15, 20, 25…). A 2- or 3-tier cake needs at least 30 servings." };
 const payFr: Faq = { q: "Comment se passent le paiement et la livraison?", a: "Après votre demande, l'équipe vous appelle dans un délai de 1 à 2 jours ouvrables pour confirmer les détails et le prix. Le dépôt est réglé après cet appel, et le solde en boutique, comptant ou débit. Ramassage au 4657, boul. Samson, ou livraison à Laval, Montréal et environs; les frais dépendent de la distance." };
 const payEn: Faq = { q: "How do payment and delivery work?", a: "After your request, the team calls you within 1–2 business days to confirm the details and price. The deposit is arranged after that call, and the balance is paid in store, cash or debit. Pick up at 4657 Samson Blvd., or get delivery across Laval, Montréal and nearby; fees depend on distance." };
 
@@ -202,7 +202,7 @@ export const OCCASIONS: Occasion[] = [
       intro: "Une croix dorée, son prénom en lettres fines, des roses ou des volants bleus. Les grandes journées à l'église se terminent souvent autour d'un gâteau Ambrosia.",
       story: [
         "Pâtisserie grecque familiale à Chomedey, on connaît bien les baptêmes : les réceptions nombreuses, les gâteaux à étages pour la salle, les biscuits en forme de croix pour les invités. On fait aussi des gâteaux de première communion, comme le livre ouvert au calice et aux raisins, et de confirmation.",
-        "Pour une grande réception, un gâteau à 2 ou 3 étages demande au moins 30 portions, et les étages ne coûtent rien de plus. On livre à votre salle à Laval et à Montréal. On parle grec au comptoir : appelez-nous pour toute question.",
+        "Pour une grande réception, un gâteau à 2 ou 3 étages demande au moins 30 portions. On livre à votre salle à Laval et à Montréal. On parle grec au comptoir : appelez-nous pour toute question.",
       ],
       ideas: [
         { t: "La croix dorée", d: "Sur un gâteau blanc, crème ou bleu, avec le prénom de l'enfant." },
@@ -225,7 +225,7 @@ export const OCCASIONS: Occasion[] = [
       intro: "A gold cross, a name in fine lettering, roses or blue ruffles. Big days at church often end around an Ambrosia cake.",
       story: [
         "As a family Greek bakery in Chomedey, we know baptisms: big receptions, tiered cakes for the hall, cross-shaped cookies for the guests. We also make First Communion cakes, like the open book with chalice and grapes, and confirmation cakes.",
-        "For a big reception, a 2- or 3-tier cake needs at least 30 servings, and tiers cost nothing extra. We deliver to your hall in Laval and Montréal. We speak Greek at the counter, so call us with any question.",
+        "For a big reception, a 2- or 3-tier cake needs at least 30 servings. We deliver to your hall in Laval and Montréal. We speak Greek at the counter, so call us with any question.",
       ],
       ideas: [
         { t: "The gold cross", d: "On a white, cream or blue cake, with the child's name." },
