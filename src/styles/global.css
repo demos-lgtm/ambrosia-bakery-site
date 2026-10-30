@@ -117,15 +117,19 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .facts span::before { content: ""; display: inline-block; width: 6px; height: 6px; margin-right: 8px; border-radius: 50%; background: var(--gold-dark); vertical-align: middle; }
 @media (max-width: 860px) {
   .ohero .wrap { grid-template-columns: 1fr; }
-  .ohero figure { order: -1; margin-inline: calc(-1 * max(16px, env(safe-area-inset-left, 0px))) calc(-1 * max(16px, env(safe-area-inset-right, 0px))); }
+  .ohero figure { order: -1; }
   /* Portrait cake photos: the old 4/3.4 box cropped every hero cake to a band.
      3/4 matches the tallest gallery sources (1500x2000), so the full height of
-     the cake survives; wider photos crop at the sides, where there is margin. */
-  .ohero figure img { aspect-ratio: 3/4; border-radius: 0; box-shadow: none; }
+     the cake survives; wider photos crop at the sides, where there is margin.
+     Height is capped so the eyebrow and h1 are on screen when you land, and the
+     width follows the ratio instead of going full-bleed, which made the photo
+     tall enough to fill the first screen on its own. */
+  .ohero figure img { aspect-ratio: 3/4; width: auto; max-width: 100%; max-height: 46svh;
+    margin-inline: auto; display: block; border-radius: var(--radius); box-shadow: var(--shadow-lift); }
   /* Caption sits under the photo on phones instead of on top of the cake. */
   .ohero figure figcaption { position: static; max-width: none; background: transparent; box-shadow: none;
     border-radius: 0; color: var(--ink-soft); font-size: 14.5px; line-height: 1.4;
-    padding: 10px max(16px, env(safe-area-inset-right, 0px)) 0 max(16px, env(safe-area-inset-left, 0px)); }
+    text-align: center; padding: 10px 0 0; }
 }
 
 /* Ideas */
