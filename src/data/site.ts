@@ -96,7 +96,7 @@ export const T = {
 };
 
 // Hero photos chosen for each section (owner-facing: change here).
-export const COVERS = { wedding: "mariage/036", custom: "anniversaire-adulte/034" } as const;
+export const COVERS = { wedding: "mariage/036", custom: "thematiques/205" } as const;
 
 // Every page in the site, for menus, footer and the sitemap check. Label per language.
 export const PAGES: Record<string, { fr: string; en: string }> = {

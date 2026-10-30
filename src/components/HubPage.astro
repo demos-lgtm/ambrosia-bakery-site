@@ -15,10 +15,10 @@ const h = HUB[lang];
 const t = T[lang];
 const PREVIEW = process.env.PREVIEW === "1";
 const fm = PREVIEW ? ["webp"] : ["avif", "webp"];
-const heroP = photo("anniversaire-adulte/034");
+const heroP = photo("thematiques/205");
 const og = process.env.PREVIEW === "1" ? { src: "/brand/og-default.jpg" } : await getImage({ src: heroP.img, width: 1200, height: 630, fit: "cover", format: "jpg", quality: 78 });
 const cards = OCCASIONS.map((o) => ({ o, p: photo(o.cover), n: photosFor(o).length }));
-const strip = ["anniversaire-enfant/005", "bapteme/006", "anniversaire-adulte/025", "baby-shower/002", "finissants/005", "thematiques/205"].map(photo);
+const strip = ["anniversaire-enfant/005", "bapteme/006", "anniversaire-adulte/025", "baby-shower/002", "finissants/005", "fiancailles-anniversaire/005"].map(photo);
 const schema = [
   { "@context": "https://schema.org", "@type": "Service", name: lang === "fr" ? "Gâteaux personnalisés" : "Custom cakes", serviceType: lang === "fr" ? "Gâteau personnalisé" : "Custom cake",
     description: h.meta, url: new URL(ROUTES.custom[lang], SITE.url).href, provider: { "@id": `${SITE.url}/#bakery` },

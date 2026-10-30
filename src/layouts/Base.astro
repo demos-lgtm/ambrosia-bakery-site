@@ -98,9 +98,9 @@ const DRAWER: [string, string[]][] = [
 <body data-lang={lang}>
   <a class="skip" href="#main">{t.skip}</a>
   <div class="progress" aria-hidden="true"></div>
-  <header class="site-head">
+  <header class={`site-head${route === "home" ? " is-over" : ""}`}>
     <div class="wrap">
-      <a class="brand" href={link("home")} aria-label={`${SITE.name}, ${t.home}`}><img src={wordmark} alt="Ambrosia" width="160" height="26"></a>
+      <a class="brand" href={link("home")} aria-label={`${SITE.name}, ${t.home}`}><img class="wm-dark" src={wordmark} alt="Ambrosia" width="160" height="26">{route === "home" && <img class="wm-light" src={wordmarkWhite} alt="" aria-hidden="true" width="160" height="26">}</a>
       <nav class="nav" aria-label={lang === "fr" ? "Principal" : "Main"}>
         {t.nav.map(([k, label]) => <a href={link(k)} aria-current={isActive(k) ? "page" : undefined}>{label}</a>)}
       </nav>
@@ -177,6 +177,21 @@ const DRAWER: [string, string[]][] = [
     // Always open a new page at the top (unless the link targets a #section).
     const toTop = () => { if (!location.hash) window.scrollTo(0, 0); };
     toTop(); addEventListener("pageshow", (e) => { if (!(e as PageTransitionEvent).persisted) toTop(); });
+
+    // Homepage: the header rides on the burgundy hero as one field, then hands off
+    // to the cream bar. .hero-home is display:none on phones, so its zero height
+    // keeps this desktop-only on its own.
+    const heroEl = document.querySelector<HTMLElement>(".hero-home");
+    const headEl = document.querySelector<HTMLElement>(".site-head");
+    if (heroEl && headEl) {
+      const syncHead = () => {
+        const h = heroEl.offsetHeight;
+        headEl.classList.toggle("is-over", h > 0 && scrollY < h - headEl.offsetHeight);
+      };
+      syncHead();
+      addEventListener("scroll", syncHead, { passive: true });
+      addEventListener("resize", syncHead);
+    }
 
     // "Back to top" arrow: only on long pages (galleries), appears after scrolling about two screens.
     const tt = document.querySelector<HTMLButtonElement>(".totop")!;
