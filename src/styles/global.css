@@ -392,9 +392,11 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 @media (max-width: 900px) { .ways { grid-template-columns: 1fr; } }
 .way { background: var(--white); border: 1px solid var(--rule); border-radius: 2px; overflow: hidden; display: flex; flex-direction: column; transition: transform .5s var(--ease-out), box-shadow .5s var(--ease-out); }
 .way:hover { transform: translateY(-4px); box-shadow: 0 2px 4px rgb(61 7 5 / .08), 0 18px 40px -16px rgb(61 7 5 / .28); }
-.way .ph { aspect-ratio: 5/4; overflow: hidden; background: var(--paper-deep); }
-.way .ph img { width: 100%; height: 100%; object-fit: cover; object-position: center 45%; }
-.ways .way:first-child .ph img { object-position: center 22%; }
+/* Cake photos are portrait 4:5, so the card uses the same box the rest of the
+   site does. A landscape box here cropped each cake to a horizontal band, which
+   the old object-position nudges were trying to compensate for. */
+.way .ph { aspect-ratio: 4/5; overflow: hidden; background: var(--paper-deep); }
+.way .ph img { width: 100%; height: 100%; object-fit: cover; }
 .way .body { padding: 24px; display: flex; flex-direction: column; gap: 12px; flex: 1; }
 .way .label { color: var(--gold-text); }
 .way h3 { font-size: clamp(26px, 2.3vw, 32px); line-height: 1.1; color: var(--burgundy); }
