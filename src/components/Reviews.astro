@@ -1,0 +1,26 @@
+---
+import { REVIEWS, reviewsFor } from "../data/reviews";
+import { SITE, ROUTES, type Lang } from "../data/site";
+interface Props { lang: Lang; tag?: string; n?: number; title?: [string, string]; band?: string }
+const { lang, tag, n = 3, title, band = "paper" } = Astro.props;
+const list = tag ? reviewsFor(tag, n) : REVIEWS.slice(0, n);
+const h = title ?? (lang === "fr" ? ["Ce que disent", "nos clients"] : ["What our", "customers say"]);
+---
+<section class={`band ${band}`}>
+  <div class="wrap">
+    <div class="rev-head">
+      <div class="sec-head" style="margin:0"><span class="label">{lang === "fr" ? "Avis Google" : "Google reviews"}</span><h2>{h[0]} <em>{h[1]}</em></h2></div>
+      <a class="bigrate" href={SITE.reviewsUrl} rel="noopener"><b>{lang === "fr" ? SITE.rating : SITE.ratingEn}</b><span><span class="st">★★★★★</span>{lang === "fr" ? "1 714 avis" : "1,714 reviews"}<br>{lang === "fr" ? "sur Google" : "on Google"}</span></a>
+    </div>
+    <div class="rcards">
+      {list.map((r) => (
+        <figure class="rcard rv">
+          <span class="st" aria-label={lang === "fr" ? "5 étoiles" : "5 stars"}>★★★★★</span>
+          <blockquote lang={r.lang}><q>{r.q}</q></blockquote>
+          <figcaption><strong>{r.name}</strong><span>{r.what[lang]}</span></figcaption>
+        </figure>
+      ))}
+    </div>
+    <p class="rev-note">{lang === "fr" ? "Extraits d'avis Google publics, en version originale." : "Excerpts of public Google reviews, in their original language."} <a href={ROUTES.reviews[lang]}>{lang === "fr" ? "Lire tous les avis" : "Read all reviews"}</a> · <a href={SITE.reviewsUrl} rel="noopener">{lang === "fr" ? "Lire sur Google" : "Read on Google"}</a></p>
+  </div>
+</section>

@@ -1,0 +1,258 @@
+---
+import "../styles/global.css";
+import "../styles/motion.css";
+import { SITE, ROUTES, T, PAGES, type Lang } from "../data/site";
+import wordmark from "../assets/brand/ambrosia-wordmark.svg?url";
+import wordmarkWhite from "../assets/brand/ambrosia-wordmark-white.svg?url";
+import sealWhite from "../assets/brand/ambrosia-seal-white.svg?url";
+import sealUrl from "../assets/brand/ambrosia-seal.svg?url";
+
+interface Props {
+  lang: Lang;
+  route: string;            // key in ROUTES
+  title: string;
+  description: string;
+  ogImage?: string;
+  crumbs?: { name: string; route?: string }[];
+  schema?: object[];
+  htmlLang?: string;        // e.g. "el" for the Greek welcome page
+  greek?: boolean;          // add the el hreflang (home pages)
+  canonicalPath?: string;   // override (Greek welcome page)
+  noindex?: boolean;
+}
+const { lang, route, title, description, ogImage, crumbs = [], schema = [], htmlLang, greek = false, canonicalPath, noindex = false } = Astro.props;
+const t = T[lang];
+const r = ROUTES[route];
+const canonical = new URL(canonicalPath ?? r[lang], SITE.url).href;
+const alt = { fr: new URL(r.fr, SITE.url).href, en: new URL(r.en, SITE.url).href };
+const link = (k: string) => ROUTES[k][lang];
+const og = ogImage && process.env.PREVIEW !== "1" ? new URL(ogImage, SITE.url).href : new URL("/brand/og-default.jpg", SITE.url).href;
+
+const bakery = {
+  "@context": "https://schema.org", "@type": "Bakery", "@id": `${SITE.url}/#bakery`,
+  name: SITE.name, alternateName: SITE.altName, url: `${SITE.url}/`, telephone: SITE.phoneIntl, email: SITE.email,
+  logo: `${SITE.url}/brand/ambrosia-seal.svg`, image: og, foundingDate: String(SITE.founded),
+  paymentAccepted: "Cash, Debit", currenciesAccepted: "CAD", servesCuisine: ["Greek", "European"], knowsLanguage: ["fr", "en", "el"],
+  address: { "@type": "PostalAddress", streetAddress: "4657 Boulevard Samson", addressLocality: "Laval", addressRegion: "QC", postalCode: "H7W 2H2", addressCountry: "CA" },
+  geo: { "@type": "GeoCoordinates", latitude: 45.5292585, longitude: -73.7587268 },
+  hasMap: SITE.maps,
+  openingHoursSpecification: [
+    { "@type": "OpeningHoursSpecification", dayOfWeek: ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"], opens: "08:00", closes: "20:00" },
+    { "@type": "OpeningHoursSpecification", dayOfWeek: "Sunday", opens: "08:00", closes: "19:00" },
+  ],
+  areaServed: [{ "@type": "City", name: "Laval" }, { "@type": "City", name: "Montréal" }],
+  sameAs: [SITE.instagram],
+};
+const breadcrumb = crumbs.length ? {
+  "@context": "https://schema.org", "@type": "BreadcrumbList",
+  itemListElement: [{ name: t.home, route: "home" }, ...crumbs].map((c, i) => ({
+    "@type": "ListItem", position: i + 1, name: c.name, ...(c.route ? { item: new URL(ROUTES[c.route][lang], SITE.url).href } : {}),
+  })),
+} : null;
+// Phones: one clear "up one level" link replaces the small breadcrumb trail (always stays on the site, unlike browser back).
+const parentCrumb = [...crumbs].slice(0, -1).reverse().find((c) => c.route);
+const up = parentCrumb ? { name: parentCrumb.name, href: link(parentCrumb.route!) } : { name: t.home, href: link("home") };
+const ld = [bakery, ...(breadcrumb ? [breadcrumb] : []), ...schema];
+const GROUP: Record<string, string[]> = { custom: ["birthday","themed","baptism","babyshower","graduation","engagement","catalogue"], wedding: ["weddingForm","sweet"], pastries: ["cheesecake","menu"], visit: ["delivery","faq"] };
+const isActive = (k: string) => route === k || (GROUP[k] ?? []).includes(route);
+const DRAWER: [string, string[]][] = [
+  ["wedding", ["wedding","weddingForm","sweet"]],
+  ["custom", ["custom","birthday","themed","baptism","babyshower","graduation","engagement","catalogue"]],
+  ["pastries", ["pastries","cheesecake","menu"]],
+  ["story", ["gallery","reviews","story","delivery","visit","faq"]],
+];
+---
+<!doctype html>
+<html lang={htmlLang ?? (lang === "fr" ? "fr-CA" : "en-CA")}>
+<head>
+  <meta charset="utf-8">
+  <script is:inline>document.documentElement.classList.add("js");if(!location.hash&&"scrollRestoration"in history)history.scrollRestoration="manual";</script>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>{title}</title>
+  <meta name="description" content={description}>
+  {noindex && <meta name="robots" content="noindex">}
+  <link rel="canonical" href={canonical}>
+  <link rel="alternate" hreflang="fr-CA" href={alt.fr}>
+  <link rel="alternate" hreflang="en-CA" href={alt.en}>
+  <link rel="alternate" hreflang="x-default" href={alt.fr}>
+  {greek && <link rel="alternate" hreflang="el" href={new URL("/el/", SITE.url).href}>}
+  <meta name="theme-color" content="#870900">
+  <link rel="icon" href={sealUrl} type="image/svg+xml">
+  <link rel="preload" href="/fonts/bodoni-moda-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="/fonts/jost-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content={SITE.name}>
+  <meta property="og:locale" content={lang === "fr" ? "fr_CA" : "en_CA"}>
+  <meta property="og:title" content={title}>
+  <meta property="og:description" content={description}>
+  <meta property="og:url" content={canonical}>
+  <meta property="og:image" content={og}>
+  <meta name="twitter:card" content="summary_large_image">
+  {ld.map((s) => <script type="application/ld+json" set:html={JSON.stringify(s)} />)}
+</head>
+<body data-lang={lang}>
+  <a class="skip" href="#main">{t.skip}</a>
+  <div class="progress" aria-hidden="true"></div>
+  <header class="site-head">
+    <div class="wrap">
+      <a class="brand" href={link("home")} aria-label={`${SITE.name}, ${t.home}`}><img src={wordmark} alt="Ambrosia" width="160" height="26"></a>
+      <nav class="nav" aria-label={lang === "fr" ? "Principal" : "Main"}>
+        {t.nav.map(([k, label]) => <a href={link(k)} aria-current={isActive(k) ? "page" : undefined}>{label}</a>)}
+      </nav>
+      <span class="langs">
+        <a href={r.fr} hreflang="fr" lang="fr" aria-current={lang === "fr" ? "true" : undefined}>FR</a>
+        <a href={r.en} hreflang="en" lang="en" aria-current={lang === "en" ? "true" : undefined}>EN</a>
+      </span>
+      <a class="btn small outline head-cta" href={link("weddingForm")}>{t.wed}</a>
+      <button class="btn small head-cta" type="button" data-chat>{t.order}</button>
+      <button class="menu-btn" type="button" aria-expanded="false" aria-controls="drawer">{t.menu}</button>
+    </div>
+  </header>
+  <nav class="drawer" id="drawer" data-open="false" aria-label={t.menu}>
+    <div class="dctas"><a class="btn outline" href={link("weddingForm")}>{t.wed}</a><button class="btn" type="button" data-chat>{t.order}</button></div>
+    {DRAWER.map(([, keys]) => <div class="dgroup">{keys.map((k, i) => <a href={link(k)} class={i === 0 ? "dhead" : undefined} aria-current={route === k ? "page" : undefined}>{PAGES[k][lang]}</a>)}</div>)}
+    <div class="dgroup dlang"><a href={r.fr} hreflang="fr" lang="fr">Français</a><a href={r.en} hreflang="en" lang="en">English</a><a href="/el/" hreflang="el" lang="el">Ελληνικά</a></div>
+  </nav>
+
+  <main id="main">
+    {crumbs.length > 0 && (
+      <nav class="crumbs wrap" aria-label={lang === "fr" ? "Fil d'Ariane" : "Breadcrumb"}>
+        <a class="uplink" href={up.href}><span aria-hidden="true">←</span> {up.name}</a>
+        <ol>
+          <li><a href={link("home")}>{t.home}</a></li>
+          {crumbs.map((c) => <li>{c.route ? <a href={link(c.route)}>{c.name}</a> : <span aria-current="page">{c.name}</span>}</li>)}
+        </ol>
+      </nav>
+    )}
+    <slot />
+  </main>
+  <button class="totop" type="button" hidden aria-label={lang === "fr" ? "Retour en haut de la page" : "Back to top"}><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg></button>
+
+  <footer class="foot">
+    <div class="wrap">
+      <div>
+        <img src={wordmarkWhite} alt="Ambrosia" width="185" height="30">
+        <p>{SITE.name}<br>{lang === "fr" ? SITE.street : SITE.streetEn}, {SITE.city} ({SITE.regionLong}) {SITE.postal}<br>{SITE.phone}</p>
+      </div>
+      <div><span class="label">{t.footerCakes}</span><ul>
+        {["wedding","sweet","custom","birthday","themed","baptism","babyshower","graduation","engagement","catalogue"].map((k) => <li><a href={link(k)}>{PAGES[k][lang]}</a></li>)}
+      </ul></div>
+      <div><span class="label">{lang === "fr" ? "La pâtisserie" : "The bakery"}</span><ul>
+        {["pastries","cheesecake","menu","gallery","reviews","story","delivery","faq"].map((k) => <li><a href={link(k)}>{PAGES[k][lang]}</a></li>)}
+      </ul></div>
+      <div><span class="label">{t.footerVisit}</span><ul>
+        {SITE.hours[lang].map(([d, h]) => <li>{d}<br><span style="color:#C9B2A8">{h}</span></li>)}
+        <li><a href={link("visit")}>{PAGES.visit[lang]}</a></li>
+        <li><a href={SITE.maps} rel="noopener">{t.directions}</a></li>
+      </ul></div>
+      <div><span class="label">{t.footerFollow}</span><ul>
+        <li><a href={SITE.instagram} rel="noopener">{SITE.instagramHandle}</a></li>
+        <li><a href={SITE.reviewsUrl} rel="noopener">{t.reviewsLine(lang === "fr" ? "1 714" : "1,714")}</a></li>
+        <li><a href={`mailto:${SITE.email}`}>{SITE.email}</a></li>
+      </ul></div>
+      <div class="legal"><span>© {new Date().getFullYear()} {SITE.name}. {t.rights}</span><a href={link("privacy")}>{t.privacy}</a></div>
+    </div>
+  </footer>
+
+  <nav class="actionbar" aria-label={lang === "fr" ? "Actions rapides" : "Quick actions"}>
+    <a href={link("weddingForm")}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M6 21h12M7 21v-6h10v6M8.5 15v-4h7v4M10 11V7.5h4V11M12 7.5V4"/></svg>{lang === "fr" ? "Mariage" : "Wedding"}</a>
+    <button class="main" type="button" data-chat><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M4 18h16M6 18v-5h12v5M8 13V9h8v4M12 9V5"/></svg>{lang === "fr" ? "Célébration" : "Celebration"}</button>
+    <a href={`tel:${SITE.phoneIntl}`}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"/></svg>{t.call}</a>
+  </nav>
+
+  <div class="chat" id="chat" role="dialog" aria-modal="false" aria-labelledby="chat-title" hidden>
+    <header><img src={sealWhite} alt="" width="30" height="26"><div><b id="chat-title">{t.chatTitle}</b><small>{t.chatSub}</small></div><button type="button" id="chat-close" aria-label={t.close}>×</button></header>
+    <div class="body"><p class="ref" id="chat-ref" hidden></p><p>{t.chatFallback}</p><p style="font-size:13.5px;color:var(--ink-soft)">{t.chatPrep}</p><a class="btn small" href={`tel:${SITE.phoneIntl}`}>{t.call} {SITE.phone}</a></div>
+  </div>
+
+  <script define:vars={{ widgetId: SITE.ghlWidgetId }}>
+    window.__AMB_GHL = widgetId;
+  </script>
+  <script>
+    // Always open a new page at the top (unless the link targets a #section).
+    const toTop = () => { if (!location.hash) window.scrollTo(0, 0); };
+    toTop(); addEventListener("pageshow", (e) => { if (!(e as PageTransitionEvent).persisted) toTop(); });
+
+    // "Back to top" arrow: only on long pages (galleries), appears after scrolling about two screens.
+    const tt = document.querySelector<HTMLButtonElement>(".totop")!;
+    let ttOn = false;
+    const ttCheck = () => {
+      const on = document.documentElement.scrollHeight > innerHeight * 3.5 && scrollY > innerHeight * 2;
+      if (on !== ttOn) { ttOn = on; tt.hidden = false; requestAnimationFrame(() => tt.classList.toggle("show", on)); }
+    };
+    addEventListener("scroll", ttCheck, { passive: true }); ttCheck();
+    tt.addEventListener("click", () => scrollTo({ top: 0, behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" }));
+    // Reveal fallback for browsers without scroll-driven animations.
+    if (!CSS.supports("animation-timeline: scroll()") && "IntersectionObserver" in window) {
+      const io = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { e.target.classList.add("io-in"); io.unobserve(e.target); } }), { rootMargin: "0px 0px -10% 0px" });
+      document.querySelectorAll(".reveal, .way .ph, .occ-grid .occ, .sec-head h2, .rv").forEach((el) => io.observe(el));
+    }
+    // Menu drawer
+    const btn = document.querySelector<HTMLButtonElement>(".menu-btn");
+    const drawer = document.getElementById("drawer");
+    btn?.addEventListener("click", () => {
+      const open = drawer?.dataset.open !== "true";
+      if (drawer) drawer.dataset.open = String(open);
+      btn.setAttribute("aria-expanded", String(open));
+    });
+
+    // GoHighLevel chat: load the widget lazily, open it from any [data-chat] button.
+    let ghlLoading = false;
+    function loadGHL() {
+      if (ghlLoading) return; ghlLoading = true;
+      const s = document.createElement("script");
+      s.src = "https://widgets.leadconnectorhq.com/loader.js";
+      s.dataset.resourcesUrl = "https://widgets.leadconnectorhq.com/chat-widget/loader.js";
+      s.dataset.widgetId = (window as any).__AMB_GHL;
+      s.async = true;
+      document.body.appendChild(s);
+      document.documentElement.classList.add("chat-on"); // phones: the action bar makes room for the chat bubble
+    }
+    // Same widget as the old site (data-widget-id 6a4424206112ba37bb92aa0a).
+    // Computers: loaded once the page is idle so the chat bubble is always there (nothing to cover).
+    // Phones: loaded only when someone taps an order button: the bottom action bar is the launcher, so no bubble
+    // sits on top of "Call", and the page loads lighter.
+    const desktop = matchMedia("(min-width: 861px)").matches;
+    if (desktop) {
+      const idle = (window as any).requestIdleCallback || ((f: () => void) => setTimeout(f, 1500));
+      addEventListener("load", () => idle(loadGHL), { once: true });
+      ["pointerdown", "keydown", "scroll"].forEach((e) => addEventListener(e, () => loadGHL(), { once: true, passive: true }));
+    }
+
+    const panel = document.getElementById("chat")!;
+    const refEl = document.getElementById("chat-ref")!;
+    function fallback(ref?: string) {
+      panel.hidden = false;
+      requestAnimationFrame(() => panel.classList.add("open"));
+      if (ref) { refEl.hidden = false; refEl.textContent = ref; } else refEl.hidden = true;
+      (panel.querySelector("#chat-close") as HTMLElement).focus();
+    }
+    function openChat(ref?: string) {
+      loadGHL();
+      const lc = (window as any).leadConnector;
+      const tryOpen = () => {
+        const w = (window as any).leadConnector?.chatWidget;
+        if (w?.openWidget) { w.openWidget(); return true; }
+        // Fallback from the old site: click the launcher inside the widget's shadow DOM.
+        const el = document.querySelector("chat-widget") as any;
+        const b = el && ((el.shadowRoot && el.shadowRoot.querySelector("button")) || el.querySelector("button"));
+        if (b) { b.click(); return true; }
+        return false;
+      };
+      if (lc && tryOpen()) return;
+      let tries = 0;
+      const timer = setInterval(() => {
+        if (tryOpen()) { clearInterval(timer); return; }
+        if (++tries > 12) { clearInterval(timer); fallback(ref); }
+      }, 250);
+    }
+    (window as any).ambOpenChat = openChat;
+    document.addEventListener("click", (e) => {
+      const b = (e.target as HTMLElement).closest<HTMLElement>("[data-chat]");
+      if (b) { e.preventDefault(); openChat(b.dataset.ref); }
+    });
+    document.getElementById("chat-close")!.addEventListener("click", () => { panel.classList.remove("open"); setTimeout(() => (panel.hidden = true), 300); });
+    addEventListener("keydown", (e) => { if (e.key === "Escape" && !panel.hidden) { panel.classList.remove("open"); panel.hidden = true; } });
+  </script>
+</body>
+</html>

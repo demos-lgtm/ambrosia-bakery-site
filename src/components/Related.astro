@@ -1,0 +1,20 @@
+---
+import Photo from "./Photo.astro";
+import { ROUTES, PAGES, type Lang } from "../data/site";
+interface Props { lang: Lang; items: { k: string; photo: string; line: { fr: string; en: string } }[]; title?: [string, string] }
+const { lang, items, title } = Astro.props;
+const h = title ?? (lang === "fr" ? ["Aussi chez", "Ambrosia"] : ["Also at", "Ambrosia"]);
+---
+<section class="band">
+  <div class="wrap">
+    <div class="sec-head"><span class="label">{lang === "fr" ? "Continuer" : "Keep exploring"}</span><h2>{h[0]} <em>{h[1]}</em></h2></div>
+    <div class="occ-grid">
+      {items.map((it) => (
+        <a class="occ rv" href={ROUTES[it.k][lang]}>
+          <Photo k={it.photo} lang={lang} sizes="(max-width: 520px) 100vw, (max-width: 900px) 50vw, 33vw" widths={[400, 720]} />
+          <span class="cap"><b>{PAGES[it.k][lang]}</b><span>{it.line[lang]}</span><i>{lang === "fr" ? "Voir →" : "See →"}</i></span>
+        </a>
+      ))}
+    </div>
+  </div>
+</section>

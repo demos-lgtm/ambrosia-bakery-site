@@ -1,0 +1,124 @@
+---
+// Cheesecake, in-store catalogue and menu pages: walk-in products, no online ordering.
+import Base from "../layouts/Base.astro";
+import PageHero from "./PageHero.astro";
+import Gallery from "./Gallery.astro";
+import Reviews from "./Reviews.astro";
+import Faq from "./Faq.astro";
+import Cta from "./Cta.astro";
+import Related from "./Related.astro";
+import LocalBlock from "./LocalBlock.astro";
+import { ALL } from "../lib/photos";
+import { SITE, ROUTES, PAGES, FLAVOURS, type Lang } from "../data/site";
+import { OCCASIONS } from "../data/occasions";
+interface Props { lang: Lang; page: "cheesecake" | "catalogue" | "menu" }
+const { lang, page } = Astro.props;
+const L = (fr: string, en: string) => (lang === "fr" ? fr : en);
+const counter = ALL.filter((p) => p.key.startsWith("fruits-fromage/"));
+const counterFilters = lang === "fr" ? [{ tag: "cheesecake", label: "Gâteau au fromage" }, { tag: "fruit", label: "Fruits frais" }, { tag: "cake", label: "Gâteaux" }] : [{ tag: "cheesecake", label: "Cheesecake" }, { tag: "fruit", label: "Fresh fruit" }, { tag: "cake", label: "Cakes" }];
+const visitFaq = lang === "fr"
+  ? { q: "Quelles sont vos heures?", a: "Du lundi au samedi de 8 h à 20 h, et le dimanche de 8 h à 19 h. Paiement comptant ou débit." }
+  : { q: "What are your hours?", a: "Monday to Saturday 8 a.m. to 8 p.m., Sunday 8 a.m. to 7 p.m. Cash or debit." };
+const faqs = {
+  cheesecake: lang === "fr" ? [
+    { q: "Faut-il commander le gâteau au fromage?", a: "Non, il est au comptoir tous les jours. Pour en réserver plusieurs ou un gros format, appelez-nous la veille au 450 686-2950." },
+    { q: "Quelles saveurs avez-vous?", a: "Ça change selon les jours et la saison. Appelez-nous si vous en cherchez une en particulier." }, visitFaq,
+  ] : [
+    { q: "Do I need to order cheesecake ahead?", a: "No, it's at the counter every day. To reserve several or a large one, call us the day before at 450 686-2950." },
+    { q: "Which flavours do you have?", a: "It changes with the day and the season. Call us if you're after a specific one." }, visitFaq,
+  ],
+  catalogue: lang === "fr" ? [
+    { q: "Peut-on commander un gâteau du catalogue en ligne?", a: "Non : le catalogue se consulte en boutique. Passez nous voir, choisissez votre modèle, et l'équipe vous dit quand il sera prêt. Vous pouvez aussi appeler pour vérifier la disponibilité." },
+    { q: "Quelle est la différence avec un gâteau sur mesure?", a: "Le catalogue propose des modèles déjà dessinés, plus abordables et prêts plus vite. Le gâteau sur mesure est conçu pour vous, avec 7 jours d'avance." },
+    visitFaq,
+  ] : [
+    { q: "Can I order a catalogue cake online?", a: "No: the catalogue is in store. Drop by, choose your design, and the team tells you when it will be ready. You can also call to check availability." },
+    { q: "How is it different from a custom cake?", a: "The catalogue has ready-designed cakes, more affordable and ready sooner. A custom cake is designed for you, with 7 days' notice." },
+    visitFaq,
+  ],
+  menu: [] as { q: string; a: string }[],
+};
+const meta = {
+  cheesecake: { title: L("Gâteau au fromage à Laval | Pâtisserie Ambrosia", "Cheesecake in Laval | Pâtisserie Ambrosia"),
+    desc: L("Le gâteau au fromage dont nos clients parlent le plus dans leurs avis Google. Au comptoir tous les jours à Laval, avec nos tartes aux fruits.", "The cheesecake our customers mention most in their Google reviews. At the counter every day in Laval, with our fruit tarts and house cakes.") },
+  catalogue: { title: L("Gâteaux du catalogue en boutique, Laval | Ambrosia", "Ready-Made Cakes, In-Store Catalogue, Laval | Ambrosia"),
+    desc: L("Gâteaux déjà dessinés, plus abordables et prêts plus vite : choisissez dans notre catalogue en boutique, 4657 boul. Samson, Laval. Ouvert 7 jours.", "Ready-designed cakes, more affordable and ready sooner: choose from our in-store catalogue at 4657 Samson Blvd., Laval. Open 7 days.") },
+  menu: { title: L("Menu de la Pâtisserie Ambrosia, Laval", "Pâtisserie Ambrosia Menu, Laval"),
+    desc: L("Tout ce qu'on fait : gâteaux de mariage, gâteaux sur mesure, catalogue, pâtisseries grecques, gâteau au fromage et tables sucrées. Laval depuis 1995.", "Everything we make: wedding cakes, custom cakes, catalogue cakes, Greek pastries, cheesecake and sweet tables. Laval since 1995.") },
+}[page];
+const schema = faqs[page].length ? [{ "@context": "https://schema.org", "@type": "FAQPage", mainEntity: faqs[page].map((f) => ({ "@type": "Question", name: f.q, acceptedAnswer: { "@type": "Answer", text: f.a } })) }] : [];
+const pastries = ["Baklava", "Galaktoboureko", "Bougatsa", "Kataïfi", "Karidopita", "Loukoumades", "Tsoureki", "Spanakopita", "Tiropita", "Profiteroles", "Tiramisu", "Macarons", "Croissants", L("Pain artisanal", "Artisan bread")];
+---
+<Base lang={lang} route={page} title={meta.title} description={meta.desc} crumbs={[{ name: PAGES[page][lang] }]} schema={schema}>
+  {page === "cheesecake" && <>
+    <PageHero lang={lang} photo="fruits-fromage/013" eyebrow={L("Le favori de nos avis", "The favourite in our reviews")}
+      h1={L("Gâteau au fromage à Laval,", "Cheesecake in Laval,")} h1em={L("celui dont on parle", "the one people talk about")}
+      intro={L("« Le meilleur gâteau au fromage que j'aie goûté » : c'est la phrase qui revient le plus souvent dans nos avis Google. Il est au comptoir tous les jours, à côté de nos tartes aux fruits frais et de nos gâteaux maison.",
+        "\"The best cheesecake I've ever tasted\": it's the line that comes back most often in our Google reviews. It's at the counter every day, next to our fresh fruit tarts and house cakes.")}
+      facts={lang === "fr" ? ["Au comptoir tous les jours", "Sans commande", "Comptant ou débit"] : ["At the counter daily", "No ordering", "Cash or debit"]}>
+      <a class="btn" href={SITE.maps} rel="noopener">{L("Itinéraire", "Directions")}</a>
+      <a class="btn outline" href={`tel:${SITE.phoneIntl}`}>{L("Appeler", "Call")} {SITE.phone}</a>
+    </PageHero>
+    <Reviews lang={lang} tag="cheesecake" n={3} />
+    <Gallery id="vitrine" band="white" photos={counter} lang={lang} filters={counterFilters} heading={lang === "fr" ? ["Dans", "la vitrine"] : ["In the", "display case"]}
+      intro={L("Le choix change chaque jour. Pour un gâteau dessiné pour votre fête, voyez nos gâteaux sur mesure.", "The selection changes daily. For a cake designed for your party, see our custom cakes.")} />
+  </>}
+
+  {page === "catalogue" && <>
+    <section class="ohero"><div class="wrap">
+      <div>
+        <span class="label">{L("Catalogue en boutique", "In-store catalogue")}</span>
+        <h1>{L("Gâteaux du catalogue à Laval :", "Ready-designed cakes in Laval:")} <em>{L("joli, rapide, abordable", "pretty, quick, affordable")}</em></h1>
+        <p class="lead">{L("Pas le temps d'un gâteau sur mesure? Notre catalogue au comptoir propose des dizaines de gâteaux déjà dessinés, pour toutes les occasions. Plus abordables, prêts plus vite. Passez le feuilleter au 4657, boul. Samson.",
+          "No time for a custom cake? Our counter catalogue has dozens of ready-designed cakes for every occasion. More affordable, ready sooner. Come flip through it at 4657 Samson Blvd.")}</p>
+        <div class="facts"><span>{L("En boutique seulement", "In store only")}</span><span>{L("Ouvert 7 jours", "Open 7 days")}</span><span>{L("Appelez pour la disponibilité", "Call to check availability")}</span></div>
+        <div class="ctas"><a class="btn" href={SITE.maps} rel="noopener">{L("Itinéraire", "Directions")}</a><a class="btn outline" href={`tel:${SITE.phoneIntl}`}>{L("Appeler", "Call")} {SITE.phone}</a></div>
+      </div>
+      <figure style="background:var(--burgundy);display:grid;place-items:center;aspect-ratio:4/5;margin:0;border-radius:2px">
+        <div style="display:grid;gap:10px;justify-items:center;text-align:center;color:var(--cream);padding:32px">
+          <b style="font-family:var(--font-display);font-weight:400;font-style:italic;font-size:clamp(32px,3vw,44px)">{L("Le catalogue", "The catalogue")}</b>
+          <span style="font-size:13px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold)">{L("Au comptoir · 4657 boul. Samson", "At the counter · 4657 Samson Blvd.")}</span>
+        </div>
+      </figure>
+    </div></section>
+    <section class="band paper"><div class="wrap">
+      <div class="sec-head"><span class="label">{L("Quel chemin pour votre gâteau?", "Which path for your cake?")}</span><h2>{L("Catalogue ou", "Catalogue or")} <em>{L("sur mesure?", "custom?")}</em></h2></div>
+      <div class="cards3">
+        <div class="card"><span class="label">{L("Catalogue", "Catalogue")}</span><h3>{L("Déjà dessiné", "Ready-designed")}</h3><p>{L("Vous choisissez un modèle en boutique. Plus abordable, prêt plus vite. Idéal pour cette semaine.", "You pick a design in store. More affordable, ready sooner. Ideal for this week.")}</p><a class="btn small outline" href={SITE.maps} rel="noopener">{L("Itinéraire", "Directions")}</a></div>
+        <div class="card"><span class="label">{L("Sur mesure", "Custom")}</span><h3>{L("Pensé pour vous", "Designed for you")}</h3><p>{L("Votre thème, votre photo d'inspiration, vos couleurs. 7 jours d'avance, commande en ligne.", "Your theme, your inspiration photo, your colours. 7 days' notice, ordered online.")}</p><a class="btn small outline" href={ROUTES.custom[lang]}>{L("Gâteaux sur mesure", "Custom cakes")}</a></div>
+        <div class="card"><span class="label">{L("Mariage", "Wedding")}</span><h3>{L("Une consultation", "A consultation")}</h3><p>{L("Avec le propriétaire, gratuite, au moins 4 semaines avant le mariage.", "With the owner, free, at least 4 weeks before the wedding.")}</p><a class="btn small outline" href={ROUTES.wedding[lang]}>{L("Gâteaux de mariage", "Wedding cakes")}</a></div>
+      </div>
+      <p class="note-box" style="margin-top:24px">{L("Les photos du catalogue arrivent bientôt sur cette page. En attendant, voici ce qu'on a souvent dans la vitrine.", "Catalogue photos are coming to this page soon. Meanwhile, here's what's often in the display case.")}</p>
+    </div></section>
+    <Gallery id="vitrine" band="white" photos={counter} lang={lang} filters={counterFilters} heading={lang === "fr" ? ["Aussi dans", "la vitrine"] : ["Also in the", "display case"]} />
+    <Reviews lang={lang} tag="catalogue" n={3} />
+  </>}
+
+  {page === "menu" && <>
+    <section class="band" style="padding-top:clamp(24px,4vw,48px)"><div class="wrap">
+      <span class="label" style="color:var(--gold-text)">{L("Pâtisserie Ambrosia · depuis 1995", "Pâtisserie Ambrosia · since 1995")}</span>
+      <h1 style="font-size:clamp(36px,1.2rem + 3vw,60px);color:var(--burgundy);margin:10px 0 14px">{L("Notre", "Our")} <em>menu</em></h1>
+      <p class="lead">{L("Tout ce qu'on fait, sur une page. Les gâteaux sur mesure se commandent en ligne; les pâtisseries et le catalogue, au comptoir.", "Everything we make, on one page. Custom cakes are ordered online; pastries and catalogue cakes at the counter.")}</p>
+    </div></section>
+    <section class="band paper"><div class="wrap">
+      <div class="cards3">
+        <div class="card"><span class="label">{L("Sur rendez-vous", "By appointment")}</span><h3><a href={ROUTES.wedding[lang]}>{PAGES.wedding[lang]}</a></h3><p>{L("Consultation gratuite, 4 semaines d'avance, 10 invités et plus.", "Free consultation, 4 weeks' notice, 10+ guests.")}</p><p><a href={ROUTES.sweet[lang]}>{PAGES.sweet[lang]} →</a></p></div>
+        <div class="card"><span class="label">{L("En ligne · 7 jours d'avance", "Online · 7 days' notice")}</span><h3><a href={ROUTES.custom[lang]}>{PAGES.custom[lang]}</a></h3><ul class="pills" style="margin:4px 0 0">{OCCASIONS.map((o) => <li><a href={ROUTES[o.key][lang]}>{o[lang].cardTitle}</a></li>)}</ul></div>
+        <div class="card"><span class="label">{L("Au comptoir", "At the counter")}</span><h3><a href={ROUTES.catalogue[lang]}>{PAGES.catalogue[lang]}</a></h3><p>{L("Gâteaux déjà dessinés, plus abordables. En boutique seulement.", "Ready-designed cakes, more affordable. In store only.")}</p><p><a href={ROUTES.cheesecake[lang]}>{PAGES.cheesecake[lang]} →</a></p></div>
+      </div>
+    </div></section>
+    <section class="band"><div class="wrap split" style="align-items:start">
+      <div><div class="sec-head"><span class="label">{L("Chaque jour au comptoir", "Every day at the counter")}</span><h2><a href={ROUTES.pastries[lang]} style="text-decoration:none">{PAGES.pastries[lang]}</a> <em>{L("et plus", "and more")}</em></h2></div><ul class="pills">{pastries.map((p) => <li>{p}</li>)}</ul></div>
+      <div><div class="sec-head"><span class="label">{L("Pour les gâteaux", "For cakes")}</span><h2>{FLAVOURS.length} <em>{L("saveurs", "flavours")}</em></h2><p class="muted">{L("Fondant, crème au beurre, semi-nu ou nu.", "Fondant, buttercream, semi-naked or naked.")}</p></div><ul class="pills" lang="en">{FLAVOURS.map((f) => <li>{f}</li>)}</ul></div>
+    </div></section>
+  </>}
+
+  {faqs[page].length > 0 && <section class="band"><div class="wrap"><div class="sec-head"><span class="label">{L("Questions fréquentes", "Questions")}</span><h2>{L("Bon à", "Good to")} <em>{L("savoir", "know")}</em></h2></div><Faq items={faqs[page]} /></div></section>}
+  <Cta lang={lang} kind={page === "menu" ? "custom" : "visit"} />
+  <LocalBlock lang={lang} band="paper" />
+  {page !== "menu" && <Related lang={lang} items={[
+    { k: "pastries", photo: "patisseries-grecques/016", line: { fr: "Baklava, galaktoboureko, bougatsa", en: "Baklava, galaktoboureko, bougatsa" } },
+    { k: "custom", photo: "anniversaire-adulte/034", line: { fr: "Un gâteau pensé pour vous", en: "A cake designed for you" } },
+    { k: page === "cheesecake" ? "catalogue" : "cheesecake", photo: page === "cheesecake" ? "fruits-fromage/012" : "fruits-fromage/013", line: page === "cheesecake" ? { fr: "Joli, rapide, abordable", en: "Pretty, quick, affordable" } : { fr: "Le favori de nos avis", en: "Our reviews' favourite" } },
+  ]} />}
+</Base>

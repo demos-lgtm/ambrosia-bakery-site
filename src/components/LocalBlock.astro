@@ -1,0 +1,36 @@
+---
+import { SITE, LOCAL, ROUTES, T, type Lang } from "../data/site";
+interface Props { lang: Lang; title?: [string, string]; band?: string }
+const { lang, title, band = "" } = Astro.props;
+const t = T[lang];
+const h = title ?? (lang === "fr" ? ["Venez nous", "voir"] : ["Come", "say hi"]);
+---
+<section class={`band ${band}`} id="nous-trouver">
+  <div class="wrap">
+    <div class="sec-head"><span class="label">{lang === "fr" ? "Chomedey, Laval" : "Chomedey, Laval"}</span><h2>{h[0]} <em>{h[1]}</em></h2></div>
+    <div class="local">
+      <div class="box">
+        <span class="label">{lang === "fr" ? "Adresse" : "Address"}</span>
+        <p class="big">{lang === "fr" ? SITE.street : SITE.streetEn}</p>
+        <p>{SITE.city} ({SITE.regionLong}) {SITE.postal}<br>{LOCAL.corner[lang]}<br>{LOCAL.parking[lang]}</p>
+        <a class="btn small outline" href={SITE.maps} rel="noopener">{t.directions}</a>
+      </div>
+      <div class="box">
+        <span class="label">{lang === "fr" ? "Heures" : "Hours"}</span>
+        <div class="hours">{SITE.hours[lang].map(([d, h]) => <><span>{d}</span><span>{h}</span></>)}</div>
+        <p class="soft">{LOCAL.pay[lang]}</p>
+      </div>
+      <div class="box">
+        <span class="label">{lang === "fr" ? "Téléphone" : "Phone"}</span>
+        <p class="big"><a href={`tel:${SITE.phoneIntl}`}>{SITE.phone}</a></p>
+        <p><a href={`mailto:${SITE.email}`}>{SITE.email}</a></p>
+        <p class="soft">{LOCAL.langs[lang]}</p>
+      </div>
+      <a class="box map" href={SITE.maps} rel="noopener" aria-label={lang === "fr" ? "Ouvrir la carte dans Google Maps" : "Open the map in Google Maps"}>
+        <svg viewBox="0 0 400 240" aria-hidden="true"><rect width="400" height="240" fill="var(--paper-deep)"/><path d="M0 150 L400 110" stroke="#fff" stroke-width="18"/><path d="M230 0 L250 240" stroke="#fff" stroke-width="14"/><path d="M0 60 L400 40 M90 0 L110 240 M330 0 L345 240" stroke="#fff" stroke-width="6" opacity=".7"/><text x="14" y="140" font-size="12" fill="var(--ink-soft)" font-family="Jost, sans-serif">boul. Samson</text><text x="262" y="230" font-size="12" fill="var(--ink-soft)" font-family="Jost, sans-serif">100e Avenue</text><circle cx="240" cy="128" r="16" fill="var(--burgundy)"/><circle cx="240" cy="128" r="6" fill="var(--cream)"/></svg>
+        <span>{lang === "fr" ? "Voir dans Google Maps →" : "Open in Google Maps →"}</span>
+      </a>
+    </div>
+    <p class="local-note">{LOCAL.delivery[lang]} <a href={ROUTES.delivery[lang]}>{lang === "fr" ? "Tout sur la livraison" : "All about delivery"}</a></p>
+  </div>
+</section>

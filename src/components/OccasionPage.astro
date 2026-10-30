@@ -1,0 +1,114 @@
+---
+import { getImage } from "astro:assets";
+import Photo from "./Photo.astro";
+import Base from "../layouts/Base.astro";
+import Gallery from "./Gallery.astro";
+import Faq from "./Faq.astro";
+import { occ, OCCASIONS } from "../data/occasions";
+import { photosFor, photo } from "../lib/photos";
+import { SITE, ROUTES, T, type Lang } from "../data/site";
+import wheatCream from "../assets/brand/ambrosia-wheat-cream.svg?url";
+
+interface Props { lang: Lang; k: string; }
+const { lang, k } = Astro.props;
+const o = occ(k);
+const c = o[lang];
+const t = T[lang];
+const photos = photosFor(o);
+const cover = photo(o.cover);
+const PREVIEW = process.env.PREVIEW === "1";
+const og = process.env.PREVIEW === "1" ? { src: "/brand/og-default.jpg" } : await getImage({ src: cover.img, width: 1200, height: 630, fit: "cover", format: "jpg", quality: 78 });
+const related = o.related.map((r) => OCCASIONS.find((x) => x.key === r)!);
+const relCovers = await Promise.all(related.map(async (r) => ({ r, p: photo(r.cover) })));
+const url = new URL(ROUTES[k][lang], SITE.url).href;
+const gh = lang === "fr"
+  ? { birthday: ["Nos gâteaux", "d'anniversaire"], themed: ["Nos gâteaux", "thématiques"], baptism: ["Nos gâteaux de", "baptême et communion"], babyshower: ["Nos gâteaux de", "baby shower"], graduation: ["Nos gâteaux de", "finissants"], engagement: ["Fiançailles et", "anniversaires de mariage"] }
+  : { birthday: ["Our", "birthday cakes"], themed: ["Our", "themed cakes"], baptism: ["Our baptism and", "communion cakes"], babyshower: ["Our", "baby shower cakes"], graduation: ["Our", "graduation cakes"], engagement: ["Engagement and", "anniversary cakes"] };
+
+const schema = [
+  {
+    "@context": "https://schema.org", "@type": "Service", name: c.crumb, serviceType: lang === "fr" ? "Gâteau personnalisé" : "Custom cake",
+    description: c.meta, url, provider: { "@id": `${SITE.url}/#bakery` }, areaServed: [{ "@type": "City", name: "Laval" }, { "@type": "City", name: "Montréal" }],
+    image: photos.slice(0, 3).map((p) => new URL(`/_preview-img/${p.ref}.jpg`, SITE.url).href),
+  },
+  { "@context": "https://schema.org", "@type": "FAQPage", mainEntity: c.faq.map((f) => ({ "@type": "Question", name: f.q, acceptedAnswer: { "@type": "Answer", text: f.a } })) },
+];
+// Replace placeholder image URLs with the real built asset URLs
+const imgs = process.env.PREVIEW === "1" ? [] : await Promise.all(photos.slice(0, 3).map((p) => getImage({ src: p.img, width: 1200, format: "jpg", quality: 78 })));
+(schema[0] as any).image = imgs.map((i) => new URL(i.src, SITE.url).href);
+---
+<Base lang={lang} route={k} title={c.title} description={c.meta} ogImage={og.src}
+  crumbs={[{ name: lang === "fr" ? "Gâteaux de célébration" : "Celebration cakes", route: "custom" }, { name: c.crumb }]} schema={schema}>
+
+  <section class="ohero">
+    <div class="wrap">
+      <div>
+        <span class="label">{c.eyebrow}</span>
+        <h1>{c.h1} {c.h1em && <em>{c.h1em}</em>}</h1>
+        <p class="lead">{c.intro}</p>
+        <div class="facts"><span>{lang === "fr" ? "7 jours d'avance" : "7 days' notice"}</span><span>{lang === "fr" ? "Dès 15 portions" : "From 15 servings"}</span><span>{lang === "fr" ? "4 finitions, 26 saveurs" : "4 finishes, 26 flavours"}</span></div>
+        <div class="ctas">
+          <button class="btn" type="button" data-chat data-ref={c.crumb}>{t.orderLong} <img class="w" src={wheatCream} alt="" width="15" height="19"></button>
+          <a class="btn outline" href="#portfolio">{lang === "fr" ? `Voir les ${photos.length} gâteaux` : `See all ${photos.length} cakes`}</a>
+        </div>
+        <a class="proof" href={SITE.reviewsUrl} rel="noopener">
+          <span class="badge"><span><b>{lang === "fr" ? SITE.rating : SITE.ratingEn}</b><small>★★★★★</small></span></span>
+          <p><strong>{t.reviewsLine(lang === "fr" ? "1 714" : "1,714")}.</strong> {lang === "fr" ? "Une pâtisserie familiale de Laval depuis 1995." : "A family bakery in Laval since 1995."}</p>
+        </a>
+      </div>
+      <figure>
+        <Photo k={cover.key} lang={lang} sizes="(max-width: 860px) 100vw, 45vw" eager />
+        <figcaption>{cover[lang]}</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section class="band paper">
+    <div class="wrap" style="display:grid;gap:clamp(28px,4vw,48px)">
+      <div class="prose rv">{c.story.map((p) => <p>{p}</p>)}</div>
+      <div class="ideas">{c.ideas.map((i) => <div class="idea rv"><h3>{i.t}</h3><p>{i.d}</p></div>)}</div>
+    </div>
+  </section>
+
+  <Gallery id="portfolio" photos={photos} lang={lang} filters={c.filters} heading={gh[k as keyof typeof gh] as [string, string]} custom />
+
+  {o.quote && (
+    <section class="band paper">
+      <div class="wrap">
+        <figure class="quote rv" style="margin:0">
+          <span class="badge"><span><b>{lang === "fr" ? SITE.rating : SITE.ratingEn}</b><small>★★★★★</small></span></span>
+          <blockquote style="margin:0"><q lang="en">{o.quote.q}</q><cite><strong>{o.quote.n}</strong> · {lang === "fr" ? "Avis Google" : "Google review"}</cite></blockquote>
+        </figure>
+      </div>
+    </section>
+  )}
+
+  <section class="band">
+    <div class="wrap">
+      <div class="sec-head"><span class="label">{lang === "fr" ? "Questions fréquentes" : "Questions"}</span><h2>{lang === "fr" ? <>Avant de <em>commander</em></> : <>Before you <em>order</em></>}</h2></div>
+      <Faq items={c.faq} />
+    </div>
+  </section>
+
+  <section class="cta-band">
+    <div class="wrap">
+      <div><h2>{lang === "fr" ? <>Votre gâteau, <em>en deux minutes</em></> : <>Your cake, <em>in two minutes</em></>}</h2>
+        <p>{lang === "fr" ? "Notre assistant vous guide : l'occasion, la date, les portions, la saveur. L'équipe vous rappelle dans 1 à 2 jours ouvrables." : "Our assistant guides you: occasion, date, servings, flavour. The team calls you back within 1–2 business days."}</p></div>
+      <div class="btns"><button class="btn" type="button" data-chat data-ref={c.crumb}>{t.orderLong}</button><a class="btn ghost" href={`tel:${SITE.phoneIntl}`}>{t.call} {SITE.phone}</a></div>
+    </div>
+  </section>
+
+  <section class="band">
+    <div class="wrap">
+      <div class="sec-head"><span class="label">{lang === "fr" ? "Autres occasions" : "Other occasions"}</span><h2>{lang === "fr" ? <>On fête <em>aussi</em></> : <>We also <em>celebrate</em></>}</h2></div>
+      <div class="occ-grid">
+        {relCovers.map(({ r, p }) => (
+          <a class="occ rv" href={ROUTES[r.key][lang]}>
+            <Photo k={p.key} lang={lang} sizes="(max-width: 520px) 100vw, (max-width: 900px) 50vw, 33vw" />
+            <span class="cap"><b>{r[lang].cardTitle}</b><span>{r[lang].cardLine}</span><i>{lang === "fr" ? "Voir les gâteaux →" : "See the cakes →"}</i></span>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+</Base>

@@ -1,0 +1,434 @@
+---
+// Wedding consultation request: a guided 4-step request (you → the wedding → details → review),
+// then the GoHighLevel booking calendar prefilled with name, email and phone.
+// Submissions go to Netlify Forms ("wedding-consultation"); field names unchanged from the old site.
+import Base from "../layouts/Base.astro";
+import Photo from "./Photo.astro";
+import { SITE, ROUTES, T, COVERS, type Lang } from "../data/site";
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const L = (fr: string, en: string) => (lang === "fr" ? fr : en);
+const t = T[lang];
+const GHL_CALENDAR = "https://api.leadconnectorhq.com/widget/booking/nv7kfLKkaZxobAiQzhb4";
+const STEPS = [L("Vous", "You"), L("Le mariage", "The wedding"), L("Détails", "Details"), L("Vérifier", "Review")];
+const GUESTS = ["10–50", "50–100", "100–150", "150–250", "250+"];
+const M = {
+  req: L("Ce champ est requis.", "This field is required."),
+  email: L("Entrez un courriel valide.", "Enter a valid email."),
+  phone: L("Entrez un numéro de téléphone valide.", "Enter a valid phone number."),
+  date: L("Choisissez la date du mariage.", "Pick your wedding date."),
+  tooSoon: L("Votre mariage est dans moins de 4 semaines. Appelez-nous au 450 686-2950 : on regarde ce qui est possible.", "Your wedding is less than 4 weeks away. Call us at 450 686-2950 and we'll see what's possible."),
+  inWeeks: L("Dans {n} semaines", "In {n} weeks"),
+  guests: L("Choisissez le nombre d'invités.", "Choose your guest count."),
+  few: L("Pour moins de 10 invités, un gâteau de célébration sur mesure est plus simple : notre assistant prend votre commande en deux minutes.", "For fewer than 10 guests, a custom celebration cake is simpler: our assistant takes your order in two minutes."),
+  ack: L("Cochez la case pour continuer.", "Tick the box to continue."),
+  err: L("Vos détails n'ont pas pu être envoyés (problème de connexion). Vous pouvez quand même choisir un moment ci-dessous, ou nous appeler au 450 686-2950.", "Your details couldn't be sent (connection problem). You can still pick a time below, or call us at 450 686-2950."),
+  sending: L("Envoi…", "Sending…"),
+  empty: L("—", "—"),
+};
+---
+<Base lang={lang} route="weddingForm" title={L("Consultation gâteau de mariage, Laval | Pâtisserie Ambrosia", "Wedding Cake Consultation, Laval | Pâtisserie Ambrosia")}
+  description={L("Consultation gratuite pour votre gâteau de mariage : 30 à 60 minutes avec le propriétaire, à la pâtisserie ou par téléphone. 4 semaines d'avance.",
+    "Book your free wedding cake consultation: 30–60 minutes with the owner, at the bakery or by phone. At least 4 weeks before the wedding.")}
+  crumbs={[{ name: L("Gâteaux de mariage", "Wedding cakes"), route: "wedding" }, { name: L("Consultation", "Consultation") }]}>
+
+  <section class="wc-hero">
+    <div class="wrap wc-hero-in">
+      <div class="wc-hero-copy">
+        <span class="label">{L("Gâteaux de mariage · Laval", "Wedding cakes · Laval")}</span>
+        <h1>{L("Votre consultation", "Your wedding cake")} <em>{L("gâteau de mariage", "consultation")}</em></h1>
+        <p>{L("Quatre petites étapes, puis vous choisissez votre moment avec le propriétaire. Le design, les étages, les saveurs et le prix se décident ensemble, en personne.",
+          "Four short steps, then you pick a time with the owner. Design, tiers, flavours and price are decided together, in person.")}</p>
+      </div>
+      <figure class="wc-hero-ph"><Photo k="mariage/002" lang={lang} sizes="(max-width: 860px) 40vw, 380px" widths={[400, 760]} /></figure>
+      <ul class="wc-badges">
+        <li>{L("Gratuit, sans engagement", "Free, no obligation")}</li><li>{L("30 à 60 min", "30–60 min")}</li><li>{L("Avec le propriétaire", "With the owner")}</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="band wc-band">
+    <div class="wrap wc">
+      <div class="wc-main">
+        <!-- Steps 1–4 live in one Netlify form; only one step is visible at a time -->
+        <div class="cview" data-view="form">
+          <ol class="wc-prog" aria-label={L("Progression", "Progress")}>
+            {STEPS.map((s, i) => <li data-p={i}><span>{i + 1}</span><b>{s}</b></li>)}
+          </ol>
+
+          <form class="wc-form" name="wedding-consultation" method="POST" data-netlify="true" netlify-honeypot="bot-field" id="wform" novalidate data-lang={lang}
+            data-m={JSON.stringify(M)}>
+            <input type="hidden" name="form-name" value="wedding-consultation">
+            <input type="hidden" name="source" value={`site-${lang}`}>
+            <input type="hidden" name="photoRef" id="photoRef" value="">
+            <p hidden><label>Bot <input name="bot-field"></label></p>
+
+            <!-- Step 1 -->
+            <fieldset class="wc-step" data-step="0">
+              <legend class="wc-q"><span class="wc-k">{L("Étape 1 de 4", "Step 1 of 4")}</span>{L("Parlons de vous", "Let's start with you")}</legend>
+              <p class="wc-help">{L("Pour que le propriétaire puisse vous confirmer la consultation.", "So the owner can confirm your consultation.")}</p>
+              <div class="field"><label for="fullName">{L("Nom complet", "Full name")} <i>*</i></label><input id="fullName" name="fullName" autocomplete="name" required placeholder={L("ex. Sophie Tremblay", "e.g. Sophie Tremblay")}><em class="ferr" aria-live="polite"></em></div>
+              <div class="row2">
+                <div class="field"><label for="phone">{L("Téléphone", "Phone")} <i>*</i></label><input id="phone" name="phone" type="tel" autocomplete="tel" inputmode="tel" placeholder="514 000-0000" required pattern="[\d\s()+.\-]{10,}"><em class="ferr" aria-live="polite"></em></div>
+                <div class="field"><label for="email">{L("Courriel", "Email")} <i>*</i></label><input id="email" name="email" type="email" autocomplete="email" inputmode="email" required placeholder={L("vous@exemple.com", "you@example.com")}><em class="ferr" aria-live="polite"></em></div>
+              </div>
+            </fieldset>
+
+            <!-- Step 2 -->
+            <fieldset class="wc-step" data-step="1" hidden>
+              <legend class="wc-q"><span class="wc-k">{L("Étape 2 de 4", "Step 2 of 4")}</span>{L("Votre grand jour", "Your big day")}</legend>
+              <div class="field"><label for="weddingDate">{L("Date du mariage", "Wedding date")} <i>*</i></label><input id="weddingDate" name="weddingDate" type="date" required>
+                <span class="wc-when" id="when" aria-live="polite"></span><em class="ferr" aria-live="polite"></em></div>
+              <div class="field"><span class="flabel" id="gl">{L("Nombre d'invités", "Guest count")} <i>*</i></span>
+                <div class="wc-chips" role="radiogroup" aria-labelledby="gl">
+                  <label class="wc-chip"><input type="radio" name="guestCount" value={L("Moins de 10", "Under 10")} data-few> <span>{L("Moins de 10", "Under 10")}</span></label>
+                  {GUESTS.map((g) => <label class="wc-chip"><input type="radio" name="guestCount" value={g} required> <span>{g}</span></label>)}
+                </div><em class="ferr" aria-live="polite"></em>
+                <div class="wc-few" id="few" hidden><p>{M.few}</p><button class="btn small" type="button" data-chat>{t.orderLong}</button></div>
+              </div>
+              <div class="field"><label for="venue">{L("Salle de réception", "Venue")} <small>({L("facultatif", "optional")})</small></label><input id="venue" name="venue" placeholder={L("ex. Château Vaudreuil, ou « quelque part à Laval »", "e.g. Château Vaudreuil, or \"somewhere in Laval\"")}></div>
+            </fieldset>
+
+            <!-- Step 3 -->
+            <fieldset class="wc-step" data-step="2" hidden>
+              <legend class="wc-q"><span class="wc-k">{L("Étape 3 de 4", "Step 3 of 4")}</span>{L("Quelques préférences", "A few preferences")}</legend>
+              <div class="field"><span class="flabel" id="fl">{L("Où préférez-vous la consultation?", "Where would you like to meet?")}</span>
+                <div class="wc-cards" role="radiogroup" aria-labelledby="fl">
+                  <label class="wc-card"><input type="radio" name="format" value={L("À la pâtisserie", "At the bakery")} checked>
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10h18M5 10v10h14V10M4 10l2-5h12l2 5M10 20v-5h4v5"/></svg>
+                    <b>{L("À la pâtisserie", "At the bakery")}</b><small>{L("Goûtez, voyez nos gâteaux, 4657 boul. Samson", "Taste and see cakes, 4657 Samson Blvd.")}</small></label>
+                  <label class="wc-card"><input type="radio" name="format" value={L("Par téléphone", "By phone")}>
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.25 11.4 11.4 0 0 0 3.6.57 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.45.57 3.57a1 1 0 0 1-.25 1z"/></svg>
+                    <b>{L("Par téléphone", "By phone")}</b><small>{L("Pratique si vous êtes loin", "Handy if you're further away")}</small></label>
+                </div></div>
+              <div class="field"><span class="flabel" id="sl">{L("Une table sucrée avec le gâteau?", "A sweet table with the cake?")}</span>
+                <div class="wc-chips" role="radiogroup" aria-labelledby="sl">
+                  <label class="wc-chip"><input type="radio" name="sweetTable" value={L("Oui, s'il vous plaît", "Yes, please")}> <span>{L("Oui, s'il vous plaît", "Yes, please")}</span></label>
+                  <label class="wc-chip"><input type="radio" name="sweetTable" value={L("Peut-être, on en parle", "Maybe, let's discuss")} checked> <span>{L("Peut-être, on en parle", "Maybe, let's discuss")}</span></label>
+                  <label class="wc-chip"><input type="radio" name="sweetTable" value={L("Non merci", "No thanks")}> <span>{L("Non merci", "No thanks")}</span></label>
+                </div>
+                <small>{L("Beaucoup de couples l'ajoutent; les détails se règlent à la consultation.", "Many couples add one; details are worked out at the consultation.")} <a href={ROUTES.sweet[lang]} target="_blank" rel="noopener">{L("Voir les tables sucrées", "See sweet tables")}</a></small></div>
+              <div class="field"><label for="notes">{L("Votre vision", "Your vision")} <small>({L("facultatif", "optional")})</small></label>
+                <textarea id="notes" name="notes" rows="4" maxlength="500" placeholder={L("Thème, couleurs, nombre d'étages, fleurs, une photo qui vous inspire…", "Theme, colours, number of tiers, flowers, a photo that inspires you…")}></textarea><small id="ncount" class="wc-count">0 / 500</small></div>
+              <p class="note-box">{L("À savoir : nous ne faisons pas de gâteaux sans gluten ni sans produits laitiers, et notre cuisine est partagée : nous ne pouvons pas garantir un gâteau sans noix.", "Heads-up: we don't make gluten-free or dairy-free cakes, and our kitchen is shared, so we can't guarantee a nut-free cake.")}</p>
+            </fieldset>
+
+            <!-- Step 4 -->
+            <fieldset class="wc-step" data-step="3" hidden>
+              <legend class="wc-q"><span class="wc-k">{L("Étape 4 de 4", "Step 4 of 4")}</span>{L("Tout est bon?", "All good?")}</legend>
+              <p class="wc-help">{L("C'est ce que le propriétaire verra avant votre consultation.", "This is what the owner will see before your consultation.")}</p>
+              <dl class="wc-sum" id="summary"></dl>
+              <label class="ack"><input type="checkbox" id="ack" name="ack" value="yes" required> <span>{L("Je comprends qu'il s'agit d'une demande de consultation : mon gâteau sera conçu en personne lors du rendez-vous.", "I understand this is a consultation request: my cake will be designed in person at the appointment.")}</span></label>
+              <em class="ferr" id="ackerr" aria-live="polite"></em>
+              <div class="form-msg err" id="smsg" role="alert" hidden></div>
+            </fieldset>
+
+            <div class="wc-nav">
+              <button class="btn outline" type="button" id="back" hidden>← {L("Retour", "Back")}</button>
+              <button class="btn" type="submit" id="next"><span data-l="next">{L("Continuer", "Continue")} →</span><span data-l="send" hidden>{L("Confirmer et réserver", "Confirm & book")} →</span></button>
+            </div>
+            <p class="soft wc-priv">{L("Vos renseignements servent seulement à organiser votre consultation.", "Your details are only used to arrange your consultation.")} <a href={ROUTES.privacy[lang]}>{t.privacy}</a></p>
+          </form>
+        </div>
+
+        <!-- Booking calendar -->
+        <div class="cview" data-view="book" hidden>
+          <ol class="wc-prog done" aria-hidden="true">{STEPS.map((s, i) => <li class="on"><span>✓</span><b>{s}</b></li>)}</ol>
+          <span class="label" style="color:var(--gold-text)">{L("Dernière étape", "Last step")}</span>
+          <h2 class="wc-q" style="margin-top:8px">{L("Choisissez votre moment", "Pick your time")}</h2>
+          <p class="wc-help">{L("Vous recevrez une confirmation par courriel dès la réservation. Si rien ne vous convient, le propriétaire vous appellera d'ici 1 à 2 jours ouvrables.", "You'll get an email confirmation as soon as you're booked. If nothing suits you, the owner will call you within 1–2 business days.")}</p>
+          <div class="form-msg err" id="bmsg" role="alert" hidden></div>
+          <div id="ghl-calendar-embed" class="calendar">
+            <iframe id="nv7kfLKkaZxobAiQzhb4_1783983391175" data-base-src={GHL_CALENDAR} title={L("Réserver votre consultation gâteau de mariage", "Book your wedding cake consultation")}
+              style="width:100%;min-height:700px;border:none;overflow:hidden;display:block" scrolling="no" loading="lazy"></iframe>
+          </div>
+          <p class="soft" style="margin-top:14px">{L("Le calendrier ne s'affiche pas? Appelez-nous au", "Calendar not showing? Call us at")} <a href={`tel:${SITE.phoneIntl}`}>{SITE.phone}</a>.</p>
+        </div>
+      </div>
+
+      <aside class="wc-side" aria-label={L("Votre demande", "Your request")}>
+        <div class="wc-live">
+          <span class="label">{L("Votre demande", "Your request")}</span>
+          <dl id="live">
+            <dt>{L("Nom", "Name")}</dt><dd data-f="fullName">—</dd>
+            <dt>{L("Date", "Date")}</dt><dd data-f="weddingDate">—</dd>
+            <dt>{L("Invités", "Guests")}</dt><dd data-f="guestCount">—</dd>
+            <dt>{L("Salle", "Venue")}</dt><dd data-f="venue">—</dd>
+            <dt>{L("Rencontre", "Meeting")}</dt><dd data-f="format">—</dd>
+            <dt>{L("Table sucrée", "Sweet table")}</dt><dd data-f="sweetTable">—</dd>
+          </dl>
+        </div>
+        <div class="wc-know">
+          <span class="label">{L("Bon à savoir", "Good to know")}</span>
+          <ul>
+            <li>{L("Au moins 4 semaines avant le mariage", "At least 4 weeks before the wedding")}</li>
+            <li>{L("10 invités et plus", "10 guests or more")}</li>
+            <li>{L("Rappel d'ici 1 à 2 jours ouvrables", "Call back within 1–2 business days")}</li>
+          </ul>
+          <p>{L("Une question?", "A question?")} <a href={`tel:${SITE.phoneIntl}`}>{SITE.phone}</a></p>
+        </div>
+      </aside>
+    </div>
+  </section>
+</Base>
+
+<style>
+  /* Hero band in brand burgundy */
+  .wc-hero { background: radial-gradient(120% 120% at 85% 20%, #9a1408 0%, var(--burgundy) 45%, #4d0500 100%); color: var(--cream); overflow: hidden; }
+  .wc-hero-in { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); grid-template-rows: auto auto; column-gap: clamp(20px, 4vw, 56px); row-gap: 0; align-items: end; padding-block: clamp(28px, 4vw, 52px); }
+  .wc-hero-copy { grid-column: 1; grid-row: 1; }
+  .wc-hero-ph { grid-column: 2; grid-row: 1 / span 2; align-self: center; }
+  .wc-badges { grid-column: 1; grid-row: 2; align-self: start; }
+  .wc-hero .label { color: var(--gold); }
+  .wc-hero h1 { font-size: clamp(34px, 1.2rem + 3.2vw, 58px); line-height: 1.04; margin: 12px 0 14px; color: var(--cream); }
+  .wc-hero h1 em { color: var(--gold-light); }
+  .wc-hero p { color: #F1E2D6; font-size: clamp(16px, 1.2vw, 18px); max-width: 52ch; margin: 0 0 18px; }
+  .wc-badges { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+  .wc-badges li { border: 1px solid rgb(201 162 74 / .6); color: var(--cream); padding: 7px 12px; font-size: 13px; letter-spacing: .06em; border-radius: 999px; }
+  .wc-hero-ph { margin: 0; justify-self: end; width: min(100%, 380px); aspect-ratio: 4/5; max-height: 440px; overflow: hidden; border-radius: 2px; box-shadow: 0 30px 60px -30px rgb(0 0 0 / .6); outline: 1px solid rgb(201 162 74 / .5); outline-offset: 8px; }
+  .wc-hero-ph :global(img) { width: 100%; height: 100%; object-fit: cover; }
+  @media (max-width: 760px) {
+    .wc-hero-in { grid-template-columns: minmax(0, 1fr) 96px; column-gap: 16px; row-gap: 14px; align-items: start; padding-block: 18px 20px; }
+    .wc-hero-ph { grid-row: 1; width: 96px; outline-offset: 4px; margin-top: 4px; align-self: start; }
+    .wc-hero h1 { font-size: clamp(28px, 8vw, 34px); margin: 8px 0 0; }
+    .wc-hero p { display: none; }
+    .wc-badges { grid-column: 1 / -1; gap: 6px; }
+    .wc-badges li { font-size: 12px; padding: 5px 10px; letter-spacing: .03em; }
+  }
+
+  .wc-band { padding-top: clamp(20px, 3vw, 40px); }
+  .wc { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(260px, 1fr); gap: clamp(24px, 4vw, 56px); align-items: start; }
+  @media (max-width: 960px) { .wc { grid-template-columns: 1fr; } }
+  .wc-main { background: var(--white); border: 1px solid var(--rule); border-radius: 2px; padding: clamp(18px, 3vw, 36px); box-shadow: 0 24px 50px -36px rgb(61 7 5 / .35); min-width: 0; }
+
+  /* Progress */
+  .wc-prog { list-style: none; padding: 0; margin: 0 0 26px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; counter-reset: s; }
+  .wc-prog li { display: grid; gap: 8px; justify-items: start; font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-soft); }
+  .wc-prog li::before { content: ""; display: block; height: 3px; width: 100%; background: var(--rule); border-radius: 2px; transition: background .4s var(--ease-out); }
+  .wc-prog li span { display: none; }
+  .wc-prog li.on { color: var(--burgundy); }
+  .wc-prog li.on::before { background: var(--burgundy); }
+  .wc-prog li.cur b { font-weight: 600; }
+  @media (max-width: 520px) { .wc-prog li b { display: none; } .wc-prog li.cur b { display: block; } .wc-prog { grid-template-columns: repeat(4, 1fr); } }
+
+  .wc-form { display: grid; gap: 22px; }
+  .wc-step { border: 0; padding: 0; margin: 0; display: grid; gap: 18px; min-width: 0; }
+  .wc-step:not([hidden]) { animation: wcIn .45s var(--ease-out); }
+  @keyframes wcIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+  .wc-q { font-family: var(--font-display); font-weight: 400; font-size: clamp(28px, 1rem + 2vw, 38px); line-height: 1.08; color: var(--burgundy); padding: 0; margin: 0 0 6px; float: left; width: 100%; }
+  .wc-q + * { clear: both; }
+  .wc-k { display: block; font-family: var(--font-text); font-size: 12px; letter-spacing: .16em; text-transform: uppercase; color: var(--gold-text); margin-bottom: 8px; }
+  .wc-help { color: var(--ink-mid); margin: 0; }
+  .wc-form .row2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+  @media (max-width: 640px) { .wc-form .row2 { grid-template-columns: 1fr; } }
+  .field i { color: var(--burgundy); font-style: normal; }
+  .field label small { font-weight: 400; color: var(--ink-soft); }
+  .flabel { font-size: 14px; font-weight: 500; }
+  .ferr { font-style: normal; font-size: 13.5px; color: #B3261E; min-height: 0; }
+  .ferr:empty { display: none; }
+  .field.bad input { border-color: #B3261E; }
+  .wc-when { font-size: 14px; color: #2E6B34; }
+  .wc-when:empty { display: none; }
+  .wc-when.warn { color: #B3261E; }
+
+  .wc-chips { display: flex; flex-wrap: wrap; gap: 10px; }
+  .wc-chip { position: relative; cursor: pointer; }
+  .wc-chip input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
+  .wc-chip span { display: inline-flex; align-items: center; min-height: 48px; padding: 0 18px; border: 1px solid var(--rule); border-radius: 999px; background: var(--white); font-size: 15.5px; transition: all .2s; }
+  .wc-chip:hover span { border-color: var(--gold-dark); }
+  .wc-chip input:checked + span { background: var(--burgundy); border-color: var(--burgundy); color: var(--cream); }
+  .wc-chip input:focus-visible + span { outline: 2px solid var(--burgundy); outline-offset: 2px; }
+  .wc-few { background: var(--blush); border-left: 3px solid var(--burgundy); padding: 14px 16px; display: grid; gap: 10px; justify-items: start; }
+  .wc-few p { margin: 0; font-size: 15px; }
+
+  .wc-cards { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+  @media (max-width: 420px) { .wc-cards { grid-template-columns: 1fr; } }
+  .wc-card { position: relative; display: grid; gap: 4px; padding: 18px 16px 16px; border: 1px solid var(--rule); border-radius: 2px; background: var(--white); cursor: pointer; transition: all .2s; }
+  .wc-card input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
+  .wc-card svg { width: 26px; height: 26px; fill: none; stroke: var(--gold-dark); stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; margin-bottom: 6px; }
+  .wc-card b { font-family: var(--font-display); font-weight: 400; font-size: 21px; color: var(--burgundy); }
+  .wc-card small { color: var(--ink-soft); font-size: 13.5px; }
+  .wc-card:has(input:checked) { border-color: var(--burgundy); background: var(--blush); box-shadow: inset 0 0 0 1px var(--burgundy); }
+  .wc-card:has(input:focus-visible) { outline: 2px solid var(--burgundy); outline-offset: 2px; }
+  .wc-count { text-align: right; }
+
+  .ack { display: flex; gap: 12px; align-items: flex-start; padding: 14px 16px; border: 1px solid var(--rule); border-radius: 2px; cursor: pointer; font-size: 15px; }
+  .ack:has(input:checked) { border-color: var(--burgundy); background: var(--blush); }
+  .ack input { width: 22px; height: 22px; margin-top: 1px; accent-color: var(--burgundy); flex: none; }
+
+  .wc-sum { display: grid; grid-template-columns: minmax(96px, auto) minmax(0, 1fr) auto; border-top: 1px solid var(--rule); margin: 0; }
+  .wc-sum :global(dt), .wc-sum :global(dd) { padding: 12px 0; border-bottom: 1px solid var(--rule); margin: 0; }
+  .wc-sum :global(dt) { color: var(--ink-soft); font-size: 14px; padding-right: 14px; }
+  .wc-sum :global(dd) { white-space: pre-wrap; overflow-wrap: anywhere; }
+  .wc-sum :global(dd.ed) { text-align: right; padding-left: 10px; }
+  .wc-sum :global(button) { background: none; border: 0; color: var(--burgundy); font: inherit; font-size: 13px; letter-spacing: .08em; text-transform: uppercase; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; padding: 0; }
+
+  .wc-nav { display: flex; gap: 12px; justify-content: space-between; align-items: center; padding-top: 8px; border-top: 1px solid var(--rule); padding-top: 20px; }
+  .wc-nav #next { margin-left: auto; }
+  .wc-priv { margin: 0; }
+  /* Phones: sticky navigation at the bottom; the site's quick-action bar steps aside on this page */
+  @media (max-width: 860px) {
+    :global(body:has(#wform) .actionbar) { display: none; }
+    :global(body:has(#wform)) { padding-bottom: 0; }
+    .wc-main { border: 0; box-shadow: none; padding: 0; background: transparent; }
+    .wc-nav { position: sticky; bottom: 0; z-index: 5; background: var(--cream); margin-inline: -16px; padding: 12px 16px calc(12px + env(safe-area-inset-bottom, 0px)); box-shadow: 0 -12px 24px -16px rgb(61 7 5 / .35); }
+    .wc-nav .btn { min-height: 52px; letter-spacing: .1em; padding-inline: 16px; }
+    .wc-nav #next { flex: 1; justify-content: center; }
+  }
+
+  .wc-side { position: sticky; top: calc(96px + env(safe-area-inset-top, 0px)); display: grid; gap: 16px; }
+  .wc-live, .wc-know { border: 1px solid var(--rule); background: var(--white); padding: 22px; border-radius: 2px; }
+  .wc-live { border-top: 3px solid var(--burgundy); }
+  .wc-live .label, .wc-know .label { color: var(--gold-text); }
+  .wc-live dl { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 10px 16px; margin: 14px 0 0; font-size: 15px; }
+  .wc-live dt { color: var(--ink-soft); }
+  .wc-live dd { margin: 0; overflow-wrap: anywhere; color: var(--ink); }
+  .wc-live dd.filled { color: var(--burgundy); }
+  .wc-know { background: var(--paper); }
+  .wc-know ul { list-style: none; padding: 0; margin: 12px 0; display: grid; gap: 8px; font-size: 15px; }
+  .wc-know li::before { content: "✓ "; color: var(--gold-dark); }
+  .wc-know p { margin: 0; font-size: 15px; }
+  @media (max-width: 960px) { .wc-side { display: none; } }
+  .calendar { border: 1px solid var(--rule); background: var(--white); border-radius: 2px; min-height: 420px; margin-top: 18px; }
+</style>
+
+<script>
+  const f = document.getElementById("wform") as HTMLFormElement;
+  const M = JSON.parse(f.dataset.m!);
+  const lang = f.dataset.lang;
+  const steps = [...f.querySelectorAll<HTMLFieldSetElement>(".wc-step")];
+  const prog = [...document.querySelectorAll<HTMLLIElement>('.cview[data-view="form"] .wc-prog li')];
+  const back = document.getElementById("back") as HTMLButtonElement, next = document.getElementById("next") as HTMLButtonElement;
+  const date = document.getElementById("weddingDate") as HTMLInputElement, when = document.getElementById("when")!;
+  const min = new Date(Date.now() + 28 * 864e5); min.setHours(0, 0, 0, 0); date.min = min.toISOString().slice(0, 10);
+  const ref = new URL(location.href).searchParams.get("ref"); if (ref) (document.getElementById("photoRef") as HTMLInputElement).value = ref;
+  const KEY = "ambrosia-wedding-draft";
+  let cur = 0;
+
+  const val = (n: string) => { const el = f.elements.namedItem(n) as any; return (el?.value ?? "").trim(); };
+  const fmtDate = (v: string) => v ? new Date(v + "T12:00:00").toLocaleDateString(lang === "fr" ? "fr-CA" : "en-CA", { weekday: "long", year: "numeric", month: "long", day: "numeric" }) : "";
+  const setErr = (el: Element | null, text: string) => { const field = el?.closest(".field"); const e = field?.querySelector(".ferr"); if (e) e.textContent = text; field?.classList.toggle("bad", !!text); };
+
+  function show(i: number, focus = true) {
+    cur = i;
+    steps.forEach((s, k) => (s.hidden = k !== i));
+    prog.forEach((p, k) => { p.classList.toggle("on", k <= i); p.classList.toggle("cur", k === i); });
+    back.hidden = i === 0;
+    next.querySelector('[data-l="next"]')!.toggleAttribute("hidden", i === steps.length - 1);
+    next.querySelector('[data-l="send"]')!.toggleAttribute("hidden", i !== steps.length - 1);
+    if (i === steps.length - 1) buildSummary();
+    const top = document.querySelector(".wc-band")!.getBoundingClientRect().top + scrollY - 80;
+    if (focus && scrollY > top) scrollTo({ top, behavior: "smooth" });
+    if (focus) (steps[i].querySelector("input:not([type=hidden]),textarea") as HTMLElement | null)?.focus({ preventScroll: true });
+  }
+
+  function validate(i: number) {
+    let ok = true;
+    const req = (id: string, extra?: (v: string) => string) => {
+      const el = document.getElementById(id) as HTMLInputElement; const v = el.value.trim();
+      const m = !v ? M.req : extra ? extra(v) : ""; setErr(el, m); if (m && ok) { ok = false; el.focus(); }
+    };
+    if (i === 0) {
+      req("fullName");
+      req("phone", (v) => (v.replace(/\D/g, "").length >= 10 ? "" : M.phone));
+      req("email", (v) => (/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v) ? "" : M.email));
+    }
+    if (i === 1) {
+      if (!date.value) { setErr(date, M.date); ok = false; }
+      else if (new Date(date.value + "T12:00:00") < min) { setErr(date, M.tooSoon); ok = false; }
+      else setErr(date, "");
+      const g = f.querySelector<HTMLInputElement>('input[name="guestCount"]:checked');
+      const gf = f.querySelector('[aria-labelledby="gl"]')!;
+      if (!g) { setErr(gf, M.guests); ok = false; } else if (g.hasAttribute("data-few")) { setErr(gf, ""); ok = false; document.getElementById("few")!.hidden = false; } else setErr(gf, "");
+    }
+    if (i === 3) {
+      const a = document.getElementById("ack") as HTMLInputElement;
+      document.getElementById("ackerr")!.textContent = a.checked ? "" : M.ack; if (!a.checked) ok = false;
+    }
+    return ok;
+  }
+
+  function buildSummary() {
+    const L = (fr: string, en: string) => (lang === "fr" ? fr : en);
+    const rows: [string, string, number][] = [
+      [L("Nom", "Name"), val("fullName"), 0], [L("Téléphone", "Phone"), val("phone"), 0], [L("Courriel", "Email"), val("email"), 0],
+      [L("Date", "Date"), fmtDate(val("weddingDate")), 1], [L("Invités", "Guests"), val("guestCount"), 1], [L("Salle", "Venue"), val("venue"), 1],
+      [L("Rencontre", "Meeting"), val("format"), 2], [L("Table sucrée", "Sweet table"), val("sweetTable"), 2], [L("Votre vision", "Your vision"), val("notes"), 2],
+    ];
+    const s = document.getElementById("summary")!; s.innerHTML = "";
+    rows.forEach(([k, v, step], idx) => {
+      const dt = document.createElement("dt"), dd = document.createElement("dd"), ed = document.createElement("dd");
+      dt.textContent = k; dd.textContent = v || M.empty; ed.className = "ed";
+      const prev = rows[idx - 1];
+      if (!prev || prev[2] !== step) { const b = document.createElement("button"); b.type = "button"; b.textContent = L("Modifier", "Edit"); b.onclick = () => show(step); ed.append(b); }
+      s.append(dt, dd, ed);
+    });
+  }
+
+  function live() {
+    document.querySelectorAll<HTMLElement>("#live dd").forEach((dd) => {
+      const n = dd.dataset.f!; let v = val(n); if (n === "weddingDate") v = fmtDate(v);
+      dd.textContent = v || "—"; dd.classList.toggle("filled", !!v);
+    });
+    try { const d: Record<string, string> = {}; new FormData(f).forEach((v, k) => { if (!["form-name", "bot-field", "ack"].includes(k)) d[k] = String(v); }); localStorage.setItem(KEY, JSON.stringify(d)); } catch {}
+  }
+
+  function updateWhen() {
+    if (!date.value) { when.textContent = ""; return; }
+    const w = Math.floor((new Date(date.value + "T12:00:00").getTime() - Date.now()) / (7 * 864e5));
+    const ok = new Date(date.value + "T12:00:00") >= min;
+    when.textContent = ok ? M.inWeeks.replace("{n}", String(w)) + " ✓" : M.tooSoon; when.classList.toggle("warn", !ok);
+    setErr(date, "");
+  }
+
+  // restore a draft
+  try {
+    const d = JSON.parse(localStorage.getItem(KEY) || "null");
+    if (d) Object.entries(d).forEach(([k, v]) => {
+      const els = f.querySelectorAll<HTMLInputElement>(`[name="${k}"]`);
+      els.forEach((el) => { if (el.type === "radio") el.checked = el.value === v; else if (el.type !== "hidden" || k === "photoRef") { if (!(k === "photoRef" && ref)) el.value = v as string; } });
+    });
+  } catch {}
+
+  const notes = document.getElementById("notes") as HTMLTextAreaElement, nc = document.getElementById("ncount")!;
+  const count = () => (nc.textContent = `${notes.value.length} / 500`);
+  notes.addEventListener("input", count); count();
+  date.addEventListener("change", updateWhen); updateWhen();
+  f.addEventListener("input", (e) => { const t = e.target as HTMLInputElement; if (t.closest(".field")?.classList.contains("bad") && t.type !== "radio") setErr(t, ""); live(); });
+  f.addEventListener("change", (e) => {
+    const t = e.target as HTMLInputElement;
+    if (t.name === "guestCount") { document.getElementById("few")!.hidden = !t.hasAttribute("data-few"); setErr(f.querySelector('[aria-labelledby="gl"]'), ""); }
+    if (t.id === "ack") document.getElementById("ackerr")!.textContent = "";
+    live();
+  });
+  back.addEventListener("click", () => show(Math.max(0, cur - 1)));
+  live(); show(0, false);
+
+  function openCalendar() {
+    const iframe = document.getElementById("nv7kfLKkaZxobAiQzhb4_1783983391175") as HTMLIFrameElement;
+    const parts = val("fullName").split(/\s+/).filter(Boolean);
+    const q = new URLSearchParams();
+    if (parts[0]) q.set("first_name", parts[0]); if (parts.length > 1) q.set("last_name", parts.slice(1).join(" "));
+    if (val("email")) q.set("email", val("email")); if (val("phone")) q.set("phone", val("phone"));
+    iframe.src = iframe.dataset.baseSrc + (q.toString() ? "?" + q : "");
+    if (!document.querySelector('script[src*="form_embed.js"]')) { const sc = document.createElement("script"); sc.src = "https://link.msgsndr.com/js/form_embed.js"; document.body.appendChild(sc); }
+  }
+
+  f.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    if (!validate(cur)) return;
+    if (cur < steps.length - 1) { show(cur + 1); return; }
+    const label = next.innerHTML; next.disabled = true; next.textContent = M.sending;
+    let failed = false;
+    try {
+      const res = await fetch("/", { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body: new URLSearchParams(new FormData(f) as any).toString() });
+      if (!res.ok) failed = true;
+    } catch { failed = true; }
+    next.disabled = false; next.innerHTML = label;
+    if (!failed) { try { localStorage.removeItem(KEY); } catch {} }
+    openCalendar();
+    document.querySelectorAll<HTMLElement>(".cview").forEach((v) => (v.hidden = v.dataset.view !== "book"));
+    scrollTo({ top: 0, behavior: "instant" as ScrollBehavior });
+    const m = document.getElementById("bmsg")!; m.textContent = failed ? M.err : ""; m.hidden = !failed;
+  });
+</script>

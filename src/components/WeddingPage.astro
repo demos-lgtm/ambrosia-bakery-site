@@ -1,0 +1,113 @@
+---
+import Base from "../layouts/Base.astro";
+import PageHero from "./PageHero.astro";
+import Gallery from "./Gallery.astro";
+import Reviews from "./Reviews.astro";
+import Faq from "./Faq.astro";
+import LocalBlock from "./LocalBlock.astro";
+import Cta from "./Cta.astro";
+import Related from "./Related.astro";
+import Photo from "./Photo.astro";
+import { getImage } from "astro:assets";
+import { ALL, photo } from "../lib/photos";
+import { SITE, ROUTES, COVERS, FLAVOURS, type Lang } from "../data/site";
+import wheatCream from "../assets/brand/ambrosia-wheat-cream.svg?url";
+
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const L = (fr: string, en: string) => (lang === "fr" ? fr : en);
+const PREVIEW = process.env.PREVIEW === "1";
+const photos = ALL.filter((p) => p.key.startsWith("mariage/")).sort((a, b) => (a.key === COVERS.wedding ? -1 : b.key === COVERS.wedding ? 1 : a.key.localeCompare(b.key)));
+const og = PREVIEW ? null : await getImage({ src: photo(COVERS.wedding).img, width: 1200, height: 630, fit: "cover", format: "jpg", quality: 78 });
+const filters = lang === "fr"
+  ? [{ tag: "floral", label: "Fleurs" }, { tag: "seminaked", label: "Semi-nu" }, { tag: "grand", label: "4 étages et plus" }, { tag: "modern", label: "Moderne" }]
+  : [{ tag: "floral", label: "Flowers" }, { tag: "seminaked", label: "Semi-naked" }, { tag: "grand", label: "4+ tiers" }, { tag: "modern", label: "Modern" }];
+const steps = lang === "fr" ? [
+  ["Réservez", "Remplissez le court formulaire : date, nombre d'invités, salle. Choisissez ensuite un moment pour la consultation."],
+  ["Consultation", "30 à 60 minutes avec le propriétaire, à la pâtisserie ou par téléphone. Design, saveurs et prix. Gratuit et sans engagement."],
+  ["Le design", "On confirme les étages, la finition, les fleurs et la table sucrée. Le dépôt est organisé après la consultation."],
+  ["Le grand jour", "On livre et on monte le gâteau à votre salle, à Laval, à Montréal et dans les environs."],
+] : [
+  ["Book", "Fill in the short form: date, guest count, venue. Then pick a time for your consultation."],
+  ["Consultation", "30 to 60 minutes with the owner, at the bakery or by phone. Design, flavours and pricing. Free, no obligation."],
+  ["The design", "We confirm tiers, finish, flowers and sweet table. The deposit is arranged after the consultation."],
+  ["The big day", "We deliver and set up the cake at your venue in Laval, Montréal and nearby."],
+];
+const faq = lang === "fr" ? [
+  { q: "Combien de temps d'avance réserver un gâteau de mariage?", a: "Au moins 4 semaines (28 jours) avant le mariage. Pour une date plus proche, appelez-nous au 450 686-2950 : on regarde ce qui est possible." },
+  { q: "Est-ce que la consultation est payante?", a: "Non. La consultation est gratuite et sans engagement. Elle dure de 30 à 60 minutes, avec le propriétaire, à la pâtisserie ou par téléphone." },
+  { q: "Livrez-vous à notre salle?", a: "Oui, à Laval, à Montréal et dans les environs. On livre et on monte le gâteau. Les frais dépendent de la distance et sont confirmés à la consultation." },
+  { q: "Pouvons-nous ajouter une table sucrée?", a: "Oui. Mini cheesecakes, éclairs, choux, cannolis, bougatsa, macarons, tours de beignes, croquembouche… On la planifie avec vous à la consultation." },
+  { q: "Y a-t-il un minimum d'invités?", a: "Les consultations mariage sont pour 10 invités et plus. Pour une plus petite fête, commandez un gâteau sur mesure en ligne." },
+  { q: "Faites-vous des gâteaux sans gluten ou sans noix?", a: "Nous ne faisons pas de gâteaux sans gluten ni sans produits laitiers, et notre cuisine est partagée : nous ne pouvons pas garantir un gâteau sans noix. En cas d'allergie grave, appelez-nous." },
+] : [
+  { q: "How far ahead should we book a wedding cake?", a: "At least 4 weeks (28 days) before the wedding. For a closer date, call us at 450 686-2950 and we'll see what's possible." },
+  { q: "Is the consultation free?", a: "Yes. The consultation is free with no obligation. It takes 30 to 60 minutes, with the owner, at the bakery or by phone." },
+  { q: "Do you deliver to our venue?", a: "Yes, across Laval, Montréal and nearby. We deliver and set up the cake. Fees depend on distance and are confirmed at the consultation." },
+  { q: "Can we add a sweet table?", a: "Yes. Mini cheesecakes, éclairs, cream puffs, cannoli, bougatsa, macarons, donut towers, croquembouche… We plan it with you at the consultation." },
+  { q: "Is there a minimum guest count?", a: "Wedding consultations are for 10 guests or more. For a smaller party, order a custom cake online." },
+  { q: "Do you make gluten-free or nut-free cakes?", a: "We don't make gluten-free or dairy-free cakes, and our kitchen is shared, so we can't guarantee a nut-free cake. For a severe allergy, please call us." },
+];
+const url = new URL(ROUTES.wedding[lang], SITE.url).href;
+const schema = [
+  { "@context": "https://schema.org", "@type": "Service", name: L("Gâteaux de mariage", "Wedding cakes"), serviceType: L("Gâteau de mariage", "Wedding cake"), url, provider: { "@id": `${SITE.url}/#bakery` },
+    areaServed: [{ "@type": "City", name: "Laval" }, { "@type": "City", name: "Montréal" }], description: L("Gâteaux de mariage et tables sucrées conçus avec le propriétaire lors d'une consultation gratuite.", "Wedding cakes and sweet tables designed with the owner in a free consultation.") },
+  { "@context": "https://schema.org", "@type": "FAQPage", mainEntity: faq.map((f) => ({ "@type": "Question", name: f.q, acceptedAnswer: { "@type": "Answer", text: f.a } })) },
+];
+---
+<Base lang={lang} route="wedding" title={L("Gâteau de mariage à Laval · Consultation gratuite | Ambrosia", "Wedding Cakes in Laval, Free Consultation | Ambrosia")}
+  description={L("Gâteaux de mariage et tables sucrées conçus avec le propriétaire en consultation gratuite. À Laval depuis 1995, livrés à Laval et Montréal.",
+    "Wedding cakes and sweet tables designed with the owner in a free consultation. In Laval since 1995, delivered across Laval and Montréal.")}
+  ogImage={og?.src} crumbs={[{ name: L("Gâteaux de mariage", "Wedding cakes") }]} schema={schema}>
+  <PageHero lang={lang} photo={COVERS.wedding} eyebrow={L("Gâteaux de mariage · Laval", "Wedding cakes · Laval")}
+    h1={L("Gâteaux de mariage à Laval,", "Wedding cakes in Laval,")} h1em={L("pensés avec vous", "designed with you")}
+    intro={L("Votre gâteau de mariage commence par une conversation. Assoyez-vous avec le propriétaire à la pâtisserie du boulevard Samson, ou au téléphone, pour une consultation gratuite de 30 à 60 minutes : design, saveurs, nombre d'invités, et une table sucrée si le cœur vous en dit.",
+      "Your wedding cake starts with a conversation. Sit down with the owner at our bakery on Samson Boulevard, or by phone, for a free 30–60 minute consultation: design, flavours, guest count, and a sweet table if you'd like one.")}
+    facts={lang === "fr" ? ["Consultation gratuite", "4 semaines d'avance", "10 invités et plus"] : ["Free consultation", "4 weeks' notice", "10+ guests"]}>
+    <a class="btn" href={ROUTES.weddingForm[lang]}>{L("Réserver ma consultation gratuite", "Book my free consultation")} <img class="w" src={wheatCream} alt="" width="15" height="19"></a>
+    <a class="btn outline" href="#portfolio">{L(`Voir ${photos.length} gâteaux`, `See ${photos.length} cakes`)}</a>
+  </PageHero>
+
+  <section class="band paper">
+    <div class="wrap">
+      <div class="sec-head"><span class="label">{L("Comment ça marche", "How it works")}</span><h2>{L("Quatre étapes,", "Four steps,")} <em>{L("un seul interlocuteur", "one person to talk to")}</em></h2></div>
+      <div class="steps3" style="grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr))">{steps.map(([a, b]) => <div class="step3 rv"><h3>{a}</h3><p>{b}</p></div>)}</div>
+    </div>
+  </section>
+
+  <Gallery id="portfolio" photos={photos} lang={lang} filters={filters} heading={lang === "fr" ? ["Nos gâteaux", "de mariage"] : ["Our", "wedding cakes"]}
+    intro={L("De vrais gâteaux faits dans notre cuisine. Touchez une photo pour l'agrandir.", "Real cakes from our kitchen. Tap a photo to enlarge it.")} custom />
+
+  <section class="band white">
+    <div class="wrap split">
+      <div>
+        <div class="sec-head"><span class="label">{L("Les détails", "The details")}</span><h2>{L("Ce qu'on décide", "What we decide")} <em>{L("ensemble", "together")}</em></h2></div>
+        <ul class="list2" style="columns:1">
+          <li><b>{L("La finition", "The finish")}</b><span>{L("Fondant, crème au beurre, semi-nu ou nu. Le fondant et la crème au beurre offrent les mêmes possibilités de design.", "Fondant, buttercream, semi-naked or naked. Fondant and buttercream offer the same design possibilities.")}</span></li>
+          <li><b>{L("Les saveurs", "The flavours")}</b><span>{L(`${FLAVOURS.length} saveurs maison, de la vanille au Serano en passant par la pistache et le tiramisu.`, `${FLAVOURS.length} house flavours, from vanilla to Serano, pistachio and tiramisu.`)}</span></li>
+          <li><b>{L("Les étages", "The tiers")}</b><span>{L("Un, deux ou trois étages et plus. Les étages ne coûtent rien de plus.", "One, two, three tiers or more. Tiers cost nothing extra.")}</span></li>
+          <li><b>{L("La table sucrée", "The sweet table")}</b><span>{L("Minis, tours de macarons ou de beignes, croquembouche.", "Minis, macaron or donut towers, croquembouche.")} <a href={ROUTES.sweet[lang]}>{L("Voir les tables sucrées", "See sweet tables")}</a></span></li>
+          <li><b>{L("La livraison", "Delivery")}</b><span>{L("Livré et monté à votre salle. Frais selon la distance.", "Delivered and set up at your venue. Fee by distance.")}</span></li>
+        </ul>
+      </div>
+      <figure class="rv"><Photo k="mariage/028" lang={lang} sizes="(max-width: 860px) 100vw, 50vw" /></figure>
+    </div>
+  </section>
+
+  <Reviews lang={lang} tag="wedding" n={3} />
+
+  <section class="band">
+    <div class="wrap">
+      <div class="sec-head"><span class="label">{L("Questions fréquentes", "Questions")}</span><h2>{L("Avant de", "Before you")} <em>{L("réserver", "book")}</em></h2></div>
+      <Faq items={faq} />
+    </div>
+  </section>
+
+  <Cta lang={lang} kind="wedding" />
+  <LocalBlock lang={lang} band="paper" />
+  <Related lang={lang} items={[
+    { k: "sweet", photo: "table-sucree/009", line: { fr: "Minis, tours et croquembouche", en: "Minis, towers and croquembouche" } },
+    { k: "engagement", photo: "fiancailles-anniversaire/005", line: { fr: "Fiançailles et anniversaires", en: "Engagements and anniversaries" } },
+    { k: "delivery", photo: "mariage/022", line: { fr: "Livré et monté à votre salle", en: "Delivered and set up at your venue" } },
+  ]} />
+</Base>

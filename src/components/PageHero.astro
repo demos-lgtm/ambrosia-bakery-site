@@ -1,0 +1,28 @@
+---
+import Photo from "./Photo.astro";
+import { SITE, T, type Lang } from "../data/site";
+interface Props { lang: Lang; eyebrow: string; h1: string; h1em?: string; intro: string; facts?: string[]; photo: string; caption?: boolean }
+const { lang, eyebrow, h1, h1em, intro, facts = [], photo: k, caption = true } = Astro.props;
+const t = T[lang];
+import { photo } from "../lib/photos";
+const p = photo(k);
+---
+<section class="ohero">
+  <div class="wrap">
+    <div>
+      <span class="label">{eyebrow}</span>
+      <h1>{h1} {h1em && <em>{h1em}</em>}</h1>
+      <p class="lead">{intro}</p>
+      {facts.length > 0 && <div class="facts">{facts.map((f) => <span>{f}</span>)}</div>}
+      <div class="ctas"><slot /></div>
+      <a class="proof" href={SITE.reviewsUrl} rel="noopener">
+        <span class="badge"><span><b>{lang === "fr" ? SITE.rating : SITE.ratingEn}</b><small>★★★★★</small></span></span>
+        <p><strong>{t.reviewsLine(lang === "fr" ? "1 714" : "1,714")}.</strong> {lang === "fr" ? "Une pâtisserie familiale de Laval depuis 1995." : "A family bakery in Laval since 1995."}</p>
+      </a>
+    </div>
+    <figure>
+      <Photo k={k} lang={lang} eager sizes="(max-width: 860px) 100vw, 45vw" />
+      {caption && <figcaption>{p[lang]}</figcaption>}
+    </figure>
+  </div>
+</section>

@@ -1,0 +1,76 @@
+---
+import Base from "../layouts/Base.astro";
+import PageHero from "./PageHero.astro";
+import Gallery from "./Gallery.astro";
+import Reviews from "./Reviews.astro";
+import Faq from "./Faq.astro";
+import Cta from "./Cta.astro";
+import Related from "./Related.astro";
+import LocalBlock from "./LocalBlock.astro";
+import { ALL } from "../lib/photos";
+import { SITE, ROUTES, type Lang } from "../data/site";
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const L = (fr: string, en: string) => (lang === "fr" ? fr : en);
+const cover = "patisseries-grecques/016";
+const photos = ALL.filter((p) => p.key.startsWith("patisseries-grecques/")).sort((a, b) => (a.key === cover ? -1 : b.key === cover ? 1 : a.key.localeCompare(b.key)));
+const items = lang === "fr" ? [
+  ["Baklava", "Pâte filo, noix et sirop au miel. Le classique, en carrés ou en spirale."], ["Galaktoboureko", "Crème à la semoule dorée dans le filo, arrosée de sirop."],
+  ["Bougatsa", "Crème onctueuse en filo croustillant, sucre glace et cannelle."], ["Kataïfi", "Pâte en fils roulée autour des noix, sirop parfumé."],
+  ["Karidopita", "Gâteau moelleux aux noix et aux épices, imbibé de sirop."], ["Loukoumades", "Petits beignets dorés au miel et à la cannelle."],
+  ["Tsoureki", "Brioche tressée, la tradition de Pâques."], ["Spanakopita", "Épinards et feta dans le filo. Pour le côté salé."],
+  ["Tiropita", "Fromage feta en feuilleté doré."], ["Profiteroles", "Choux, crème et sauce au chocolat."],
+  ["Tiramisu", "Café, mascarpone et cacao."], ["Macarons", "De toutes les couleurs, au comptoir."],
+  ["Croissants", "Feuilletés du matin."], ["Pain artisanal", "Frais tous les jours."],
+] : [
+  ["Baklava", "Phyllo, walnuts and honey syrup. The classic, in squares or spirals."], ["Galaktoboureko", "Golden semolina custard in phyllo, soaked in syrup."],
+  ["Bougatsa", "Creamy custard in crisp phyllo, icing sugar and cinnamon."], ["Kataifi", "Shredded pastry rolled around walnuts, fragrant syrup."],
+  ["Karidopita", "Moist walnut and spice cake, soaked in syrup."], ["Loukoumades", "Little golden doughnuts with honey and cinnamon."],
+  ["Tsoureki", "Braided brioche, the Easter tradition."], ["Spanakopita", "Spinach and feta in phyllo. For the savoury side."],
+  ["Tiropita", "Feta in golden flaky pastry."], ["Profiteroles", "Cream puffs with chocolate sauce."],
+  ["Tiramisu", "Coffee, mascarpone and cocoa."], ["Macarons", "Every colour, at the counter."],
+  ["Croissants", "Flaky, every morning."], ["Artisan bread", "Fresh every day."],
+];
+const faq = lang === "fr" ? [
+  { q: "Peut-on commander des pâtisseries en ligne?", a: "Non : les pâtisseries sont faites chaque jour et vendues au comptoir. Passez nous voir au 4657, boul. Samson. Pour une grande quantité, appelez-nous à l'avance." },
+  { q: "Quelles sont vos heures?", a: "Du lundi au samedi de 8 h à 20 h, et le dimanche de 8 h à 19 h." },
+  { q: "Y a-t-il des noix?", a: "Beaucoup de pâtisseries grecques contiennent des noix, et notre cuisine est partagée. En cas d'allergie, demandez-nous au comptoir ou appelez-nous." },
+  { q: "Faites-vous des plateaux pour les fêtes?", a: "Pour un événement, la table sucrée est faite pour ça. Sinon, appelez-nous pour une grosse commande au comptoir." },
+] : [
+  { q: "Can I order pastries online?", a: "No: pastries are made every day and sold at the counter. Come see us at 4657 Samson Blvd. For a large quantity, call us ahead." },
+  { q: "What are your hours?", a: "Monday to Saturday 8 a.m. to 8 p.m., Sunday 8 a.m. to 7 p.m." },
+  { q: "Do they contain nuts?", a: "Many Greek pastries contain nuts, and our kitchen is shared. With an allergy, ask us at the counter or call us." },
+  { q: "Do you make party platters?", a: "For an event, that's what the sweet table is for. Otherwise, call us for a large counter order." },
+];
+const schema = [{ "@context": "https://schema.org", "@type": "FAQPage", mainEntity: faq.map((f) => ({ "@type": "Question", name: f.q, acceptedAnswer: { "@type": "Answer", text: f.a } })) }];
+---
+<Base lang={lang} route="pastries" title={L("Pâtisseries grecques et baklava à Laval | Ambrosia", "Greek Pastries & Baklava in Laval | Pâtisserie Ambrosia")}
+  description={L("Baklava, galaktoboureko, bougatsa, kataïfi, spanakopita et tsoureki faits chaque jour à Laval depuis 1995. Au comptoir, sans commande : passez nous voir.",
+    "Baklava, galaktoboureko, bougatsa, kataifi, spanakopita and tsoureki made daily in Laval since 1995. At the counter, no ordering needed: drop by.")}
+  crumbs={[{ name: L("Pâtisseries grecques", "Greek pastries") }]} schema={schema}>
+  <PageHero lang={lang} photo={cover} eyebrow={L("Chaque jour au comptoir", "Every day at the counter")}
+    h1={L("Pâtisseries grecques à Laval,", "Greek pastries in Laval,")} h1em={L("faites ce matin", "made this morning")}
+    intro={L("Baklava, galaktoboureko, bougatsa, spanakopita : les recettes de la famille, faites chaque jour dans notre cuisine du boulevard Samson depuis 1995. Pas besoin de commander : passez, choisissez, repartez avec une boîte.",
+      "Baklava, galaktoboureko, bougatsa, spanakopita: family recipes, made every day in our kitchen on Samson Boulevard since 1995. No need to order: drop by, pick, leave with a box.")}
+    facts={lang === "fr" ? ["Ouvert 7 jours", "Sans commande", "Depuis 1995"] : ["Open 7 days", "No ordering", "Since 1995"]}>
+    <a class="btn" href={SITE.maps} rel="noopener">{L("Itinéraire", "Directions")}</a>
+    <a class="btn outline" href={ROUTES.visit[lang]}>{L("Voir les heures", "See hours")}</a>
+  </PageHero>
+  <section class="band paper">
+    <div class="wrap">
+      <div class="sec-head"><span class="label">{L("Au comptoir", "At the counter")}</span><h2>{L("Ce qu'on fait", "What we make")} <em>{L("chaque jour", "every day")}</em></h2><p>{L("Selon la journée et la saison, le choix peut varier. Appelez-nous si vous cherchez quelque chose de précis.", "Depending on the day and season, the selection varies. Call us if you're looking for something specific.")}</p></div>
+      <ul class="list2">{items.map(([a, b]) => <li><b>{a}</b><span>{b}</span></li>)}</ul>
+    </div>
+  </section>
+  <Gallery id="photos" band="white" photos={photos} lang={lang} filters={lang === "fr" ? [{ tag: "syrup", label: "Au sirop" }, { tag: "savoury", label: "Salé" }, { tag: "bread", label: "Pains et brioches" }, { tag: "sweet", label: "Autres douceurs" }] : [{ tag: "syrup", label: "Syrup pastries" }, { tag: "savoury", label: "Savoury" }, { tag: "bread", label: "Breads" }, { tag: "sweet", label: "Other sweets" }]}
+    heading={lang === "fr" ? ["Dans", "la vitrine"] : ["In the", "display case"]} />
+  <Reviews lang={lang} tag="pastries" n={3} />
+  <section class="band"><div class="wrap"><div class="sec-head"><span class="label">{L("Questions fréquentes", "Questions")}</span><h2>{L("Bon à", "Good to")} <em>{L("savoir", "know")}</em></h2></div><Faq items={faq} /></div></section>
+  <Cta lang={lang} kind="visit" />
+  <LocalBlock lang={lang} band="paper" />
+  <Related lang={lang} items={[
+    { k: "cheesecake", photo: "fruits-fromage/013", line: { fr: "Le plus cité dans nos avis", en: "The most mentioned in our reviews" } },
+    { k: "sweet", photo: "table-sucree/022", line: { fr: "Nos minis pour les grandes fêtes", en: "Our minis for big parties" } },
+    { k: "menu", photo: "fruits-fromage/012", line: { fr: "Tout ce qu'on fait, sur une page", en: "Everything we make, on one page" } },
+  ]} />
+</Base>

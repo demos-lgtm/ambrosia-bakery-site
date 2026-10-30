@@ -1,0 +1,275 @@
+---
+// Gallery, reviews, story, visit, delivery, FAQ and privacy pages.
+import Base from "../layouts/Base.astro";
+import Gallery from "./Gallery.astro";
+import Faq from "./Faq.astro";
+import Cta from "./Cta.astro";
+import Related from "./Related.astro";
+import LocalBlock from "./LocalBlock.astro";
+import Photo from "./Photo.astro";
+import { ALL, type Photo as P } from "../lib/photos";
+import { REVIEWS, REVIEW_FILTERS } from "../data/reviews";
+import { SITE, ROUTES, PAGES, LOCAL, type Lang } from "../data/site";
+interface Props { lang: Lang; page: "gallery" | "reviews" | "story" | "visit" | "delivery" | "faq" | "privacy" }
+const { lang, page } = Astro.props;
+const L = (fr: string, en: string) => (lang === "fr" ? fr : en);
+
+// Gallery: every photo tagged by occasion (deep links: ?occasion=bapteme)
+const OCC: [string, string, string, string][] = [
+  ["mariage", "mariage/", "Mariage", "Weddings"], ["anniversaire", "anniversaire-", "Anniversaire", "Birthday"], ["thematique", "thematiques/", "Thématiques", "Themed"],
+  ["bapteme", "bapteme/", "Baptême", "Baptism"], ["babyshower", "baby-shower/", "Baby shower", "Baby shower"], ["finissants", "finissants/", "Finissants", "Graduation"],
+  ["fiancailles", "fiancailles-anniversaire/", "Fiançailles", "Engagement"], ["tablesucree", "table-sucree/", "Tables sucrées", "Sweet tables"],
+  ["patisseries", "patisseries-grecques/", "Pâtisseries", "Pastries"], ["vitrine", "fruits-fromage/", "Vitrine", "Display case"],
+];
+const order = ["mariage/036", "anniversaire-adulte/034", "bapteme/018", "thematiques/112", "baby-shower/016", "table-sucree/009", "finissants/007", "fiancailles-anniversaire/005"];
+const galleryPhotos: P[] = page === "gallery" ? ALL.map((p) => ({ ...p, tags: OCC.filter(([, pre]) => p.key.startsWith(pre)).map(([t]) => t) }))
+  .sort((a, b) => { const ia = order.indexOf(a.key), ib = order.indexOf(b.key); if (ia >= 0 || ib >= 0) return (ia < 0 ? 99 : ia) - (ib < 0 ? 99 : ib); return 0; }) : [];
+// interleave folders after the featured ones so the first screen shows variety
+if (page === "gallery") {
+  const head = galleryPhotos.splice(0, order.length);
+  const buckets = OCC.map(([t]) => galleryPhotos.filter((p) => p.tags[0] === t));
+  const mixed: P[] = []; for (let i = 0; mixed.length < galleryPhotos.length; i++) buckets.forEach((b) => b[i] && mixed.push(b[i]));
+  galleryPhotos.splice(0, galleryPhotos.length, ...head, ...mixed);
+}
+
+const faqGroups = lang === "fr" ? [
+  ["Commander", [
+    { q: "Comment commander un gâteau sur mesure?", a: "En ligne, avec notre assistant (bouton « Commander ») : l'occasion, la date, les portions, la finition, la saveur et jusqu'à 5 photos d'inspiration. L'équipe vous rappelle dans 1 à 2 jours ouvrables pour confirmer le design et le prix." },
+    { q: "Combien de temps d'avance?", a: "Au moins 7 jours pour un gâteau sur mesure, et 4 semaines pour un gâteau de mariage. Plus tôt? Appelez-nous au 450 686-2950." },
+    { q: "Et pour un gâteau de mariage?", a: "Réservez une consultation gratuite avec le propriétaire, à la pâtisserie ou par téléphone, au moins 4 semaines avant le mariage (10 invités et plus)." },
+    { q: "Puis-je acheter un gâteau sans commander?", a: "Oui : les gâteaux du catalogue et les pâtisseries se choisissent en boutique. Appelez pour vérifier la disponibilité d'un modèle." },
+  ]],
+  ["Le gâteau", [
+    { q: "Combien de portions me faut-il?", a: "Une portion par invité. Minimum 15 portions, par tranches de 5. Un gâteau à 2 ou 3 étages demande au moins 30 portions; les étages ne coûtent rien de plus." },
+    { q: "Quelles finitions offrez-vous?", a: "Fondant, crème au beurre, semi-nu et nu. Le fondant et la crème au beurre offrent les mêmes possibilités de design; la crème au beurre coûte un peu moins cher." },
+    { q: "Quelles saveurs?", a: "26 saveurs maison, dont vanille, double chocolat, red velvet, tiramisu, pistache, Serano et Biscoff. Certaines peuvent varier en prix." },
+    { q: "Puis-je fournir mes propres décorations?", a: "Les décorations sont fournies par Ambrosia. Si vous tenez à un élément, mentionnez-le et l'équipe en discutera avec vous." },
+    { q: "Combien de caractères pour l'inscription?", a: "Jusqu'à 120 caractères, accents compris. Pas d'émojis : on les écrit en mots." },
+  ]],
+  ["Allergies", [
+    { q: "Faites-vous des gâteaux sans gluten ou sans produits laitiers?", a: "Non, nous n'en faisons pas." },
+    { q: "Pouvez-vous garantir un gâteau sans noix?", a: "Non. Notre cuisine est partagée et il peut y avoir contamination croisée. En cas d'allergie grave, appelez-nous au 450 686-2950 pour en parler avec l'équipe." },
+  ]],
+  ["Paiement et livraison", [
+    { q: "Comment payer?", a: "Le dépôt est organisé par l'équipe après l'appel de suivi. Le solde se paie en boutique au ramassage, comptant ou débit (pas de cartes de crédit)." },
+    { q: "Livrez-vous?", a: "Oui, à Laval, à Montréal et dans les environs. Les frais dépendent de la distance et sont confirmés à l'appel de suivi." },
+    { q: "Où ramasser mon gâteau?", a: "Au 4657, boul. Samson, coin 100e Avenue, dans Place 100. Stationnement gratuit." },
+  ]],
+] : [
+  ["Ordering", [
+    { q: "How do I order a custom cake?", a: "Online with our assistant (the \"Order\" button): occasion, date, servings, finish, flavour and up to 5 inspiration photos. The team calls you within 1–2 business days to confirm the design and price." },
+    { q: "How far ahead?", a: "At least 7 days for a custom cake, and 4 weeks for a wedding cake. Sooner? Call us at 450 686-2950." },
+    { q: "And for a wedding cake?", a: "Book a free consultation with the owner, at the bakery or by phone, at least 4 weeks before the wedding (10+ guests)." },
+    { q: "Can I buy a cake without ordering?", a: "Yes: catalogue cakes and pastries are chosen in store. Call to check a design's availability." },
+  ]],
+  ["The cake", [
+    { q: "How many servings do I need?", a: "One serving per guest. Minimum 15 servings, in steps of 5. A 2- or 3-tier cake needs at least 30 servings; tiers cost nothing extra." },
+    { q: "Which finishes do you offer?", a: "Fondant, buttercream, semi-naked and naked. Fondant and buttercream offer the same design possibilities; buttercream costs a little less." },
+    { q: "Which flavours?", a: "26 house flavours, including vanilla, double chocolate, red velvet, tiramisu, pistachio, Serano and Biscoff. Some may vary in price." },
+    { q: "Can I bring my own decorations?", a: "Decorations are supplied by Ambrosia. If something matters to you, mention it and the team will discuss it with you." },
+    { q: "How long can the inscription be?", a: "Up to 120 characters, accents included. No emoji: we write them out in words." },
+  ]],
+  ["Allergies", [
+    { q: "Do you make gluten-free or dairy-free cakes?", a: "No, we don't." },
+    { q: "Can you guarantee a nut-free cake?", a: "No. Our kitchen is shared and cross-contamination is possible. For a severe allergy, call us at 450 686-2950 to talk it through with the team." },
+  ]],
+  ["Payment & delivery", [
+    { q: "How do I pay?", a: "The deposit is arranged by the team after your follow-up call. The balance is paid in store at pickup, cash or debit (no credit cards)." },
+    { q: "Do you deliver?", a: "Yes, across Laval, Montréal and nearby. Fees depend on distance and are confirmed on your follow-up call." },
+    { q: "Where do I pick up my cake?", a: "At 4657 Samson Blvd., corner of 100th Avenue, in Place 100. Free parking." },
+  ]],
+];
+const allFaq = (faqGroups as [string, { q: string; a: string }[]][]).flatMap(([, f]) => f);
+
+const meta = {
+  gallery: [L("Galerie de gâteaux, Laval | Pâtisserie Ambrosia", "Cake Gallery, Laval | Pâtisserie Ambrosia"), L("Plus de 400 vrais gâteaux faits à Laval : mariages, anniversaires, baptêmes, baby showers, finissants, tables sucrées. Filtrez par occasion.", "Over 400 real cakes made in Laval: weddings, birthdays, baptisms, baby showers, graduations, sweet tables. Filter by occasion.")],
+  reviews: [L("Avis clients, 4,5 étoiles sur Google | Ambrosia Laval", "Customer Reviews, 4.5 Stars on Google | Ambrosia Laval"), L("1 714 avis Google, note de 4,5 : ce que nos clients disent de nos gâteaux de mariage, gâteaux sur mesure, pâtisseries grecques et gâteau au fromage.", "1,714 Google reviews, rated 4.5: what customers say about our wedding cakes, custom cakes, Greek pastries and cheesecake.")],
+  story: [L("Notre histoire : pâtisserie familiale à Laval depuis 1995", "Our Story: A Family Bakery in Laval Since 1995"), L("Depuis 1995, la famille Ambrosia fait des gâteaux et des pâtisseries grecques au coin Samson et 100e Avenue, à Chomedey. Trois décennies, trois langues.", "Since 1995, the Ambrosia family has made cakes and Greek pastries at Samson and 100th Avenue in Chomedey. Three decades, three languages.")],
+  visit: [L("Heures et itinéraire, 4657 boul. Samson Laval | Ambrosia", "Hours & Directions, 4657 Samson Blvd. Laval | Ambrosia"), L("Pâtisserie Ambrosia, 4657 boul. Samson, Laval. Lundi au samedi 8 h – 20 h, dimanche 8 h – 19 h. Stationnement gratuit à Place 100. 450 686-2950.", "Pâtisserie Ambrosia, 4657 Samson Blvd., Laval. Mon–Sat 8 a.m.–8 p.m., Sun 8 a.m.–7 p.m. Free parking at Place 100. 450 686-2950.")],
+  delivery: [L("Livraison de gâteaux à Laval et Montréal | Ambrosia", "Cake Delivery in Laval & Montréal | Pâtisserie Ambrosia"), L("Livraison de gâteaux de mariage, gâteaux sur mesure et tables sucrées à Laval, Montréal et environs. Frais selon la distance, confirmés à l'appel de suivi.", "Delivery of wedding cakes, custom cakes and sweet tables across Laval, Montréal and nearby. Fees by distance, confirmed on your follow-up call.")],
+  faq: [L("Questions fréquentes | Pâtisserie Ambrosia, Laval", "FAQ | Pâtisserie Ambrosia, Laval"), L("Délais, portions, finitions, saveurs, allergies, paiement et livraison : les réponses à vos questions sur nos gâteaux à Laval.", "Lead times, servings, finishes, flavours, allergies, payment and delivery: answers about our cakes in Laval.")],
+  privacy: [L("Politique de confidentialité | Pâtisserie Ambrosia", "Privacy Policy | Pâtisserie Ambrosia"), L("Comment Pâtisserie Ambrosia recueille, utilise et protège vos renseignements personnels, conformément à la Loi 25 du Québec.", "How Pâtisserie Ambrosia collects, uses and protects your personal information, in line with Québec's Law 25.")],
+}[page];
+const schema = page === "faq" ? [{ "@context": "https://schema.org", "@type": "FAQPage", mainEntity: allFaq.map((f) => ({ "@type": "Question", name: f.q, acceptedAnswer: { "@type": "Answer", text: f.a } })) }] : [];
+---
+<Base lang={lang} route={page} title={meta[0]} description={meta[1]} crumbs={[{ name: PAGES[page][lang] }]} schema={schema}>
+  {page === "gallery" && <>
+    <section class="band" style="padding-bottom:0;padding-top:clamp(24px,4vw,48px)"><div class="wrap">
+      <span class="label" style="color:var(--gold-text)">{L("Portfolio · faits à Laval", "Portfolio · made in Laval")}</span>
+      <h1 style="font-size:clamp(36px,1.2rem + 3vw,60px);color:var(--burgundy);margin:10px 0 14px">{L("Galerie de", "Cake")} <em>{L("gâteaux", "gallery")}</em></h1>
+      <p class="lead">{L("De vrais gâteaux, sortis de notre cuisine du boulevard Samson, chacun créé pour un client. Parcourez-les pour vous inspirer, puis dites-nous votre idée : on la réalise.", "Real cakes from our kitchen on Samson Boulevard, each one created for a customer. Browse for inspiration, then tell us your idea: we'll bring it to life.")}</p>
+    </div></section>
+    <Gallery id="galerie" band="tight" photos={galleryPhotos} lang={lang} filters={OCC.map(([tag, , fr, en]) => ({ tag, label: lang === "fr" ? fr : en }))} heading={lang === "fr" ? ["Tous", "nos gâteaux"] : ["All", "our cakes"]} custom />
+    <Related lang={lang} items={[
+      { k: "wedding", photo: "mariage/036", line: { fr: "Consultation gratuite avec le propriétaire", en: "Free consultation with the owner" } },
+      { k: "custom", photo: "anniversaire-adulte/034", line: { fr: "Six occasions, un gâteau à votre image", en: "Six occasions, a cake made for you" } },
+      { k: "themed", photo: "thematiques/112", line: { fr: "Vos personnages et univers préférés", en: "Favourite characters and worlds" } },
+    ]} />
+    <Cta lang={lang} kind="custom" />
+  </>}
+
+  {page === "reviews" && <>
+    <section class="band paper" style="padding-top:clamp(24px,4vw,48px)"><div class="wrap">
+      <div class="rev-head">
+        <div><span class="label" style="color:var(--gold-text)">{L("Avis Google", "Google reviews")}</span>
+          <h1 style="font-size:clamp(36px,1.2rem + 3vw,60px);color:var(--burgundy);margin:10px 0 14px">{L("Ce que disent", "What our")} <em>{L("nos clients", "customers say")}</em></h1>
+          <p class="lead">{L("Des familles qui reviennent depuis plus de 10 ans, des mariages livrés à l'heure, un gâteau au fromage dont on parle encore. Voici quelques extraits.", "Families coming back for 10+ years, weddings delivered on time, a cheesecake people still talk about. Here are a few excerpts.")}</p></div>
+        <a class="bigrate" href={SITE.reviewsUrl} rel="noopener"><b>{lang === "fr" ? SITE.rating : SITE.ratingEn}</b><span><span class="st">★★★★★</span>{L("1 714 avis", "1,714 reviews")}<br>{L("sur Google", "on Google")}</span></a>
+      </div>
+      <div class="chips" role="group" aria-label={L("Filtrer les avis", "Filter reviews")} style="margin-bottom:22px" id="rchips">
+        <button class="chip" type="button" data-rf="all" aria-pressed="true">{L("Tous", "All")}</button>
+        {REVIEW_FILTERS[lang].map(([t, l]) => <button class="chip" type="button" data-rf={t} aria-pressed="false">{l}</button>)}
+      </div>
+      <div class="rcards">
+        {REVIEWS.map((r) => (
+          <figure class="rcard" data-tags={r.tags.join(" ")}>
+            <span class="st">★★★★★</span><blockquote lang={r.lang}><q>{r.q}</q></blockquote>
+            <figcaption><strong>{r.name}</strong><span>{r.what[lang]}</span></figcaption>
+          </figure>
+        ))}
+      </div>
+      <p class="rev-note">{L("Extraits d'avis Google publics, en version originale.", "Excerpts of public Google reviews, in their original language.")} <a href={SITE.reviewsUrl} rel="noopener">{L("Lire tous les avis sur Google", "Read all reviews on Google")}</a></p>
+    </div></section>
+    <section class="band"><div class="wrap split">
+      <div><div class="sec-head"><span class="label">{L("Vous êtes venu?", "Been in?")}</span><h2>{L("Laissez-nous", "Leave us")} <em>{L("un mot", "a note")}</em></h2><p>{L("Un avis Google aide d'autres familles de Laval à nous trouver. Merci!", "A Google review helps other Laval families find us. Thank you!")}</p></div>
+        <a class="btn" href={SITE.reviewsUrl} rel="noopener">{L("Écrire un avis sur Google", "Write a Google review")}</a></div>
+      <figure class="rv"><Photo k="anniversaire-adulte/028" lang={lang} sizes="(max-width: 860px) 100vw, 50vw" /></figure>
+    </div></section>
+    <Related lang={lang} items={[
+      { k: "wedding", photo: "mariage/036", line: { fr: "Les mariages dont nos clients parlent", en: "The weddings customers talk about" } },
+      { k: "cheesecake", photo: "fruits-fromage/001", line: { fr: "Le gâteau au fromage qu'on nous réclame", en: "The cheesecake people ask for" } },
+      { k: "pastries", photo: "patisseries-grecques/001", line: { fr: "Baklava, galaktoboureko et plus", en: "Baklava, galaktoboureko and more" } },
+    ]} />
+    <Cta lang={lang} kind="custom" />
+  </>}
+
+  {page === "story" && <>
+    <section class="band" style="padding-top:clamp(24px,4vw,48px)"><div class="wrap split">
+      <div>
+        <span class="label" style="color:var(--gold-text)">{L("Depuis 1995 à Chomedey", "Since 1995 in Chomedey")}</span>
+        <h1 style="font-size:clamp(36px,1.2rem + 3vw,60px);line-height:1.05;color:var(--burgundy);margin:10px 0 18px">{L("Une pâtisserie de famille,", "A family bakery,")} <em>{L("depuis trois décennies", "for three decades")}</em></h1>
+        <div class="prose">
+          <p>{L("En 1995, Ambrosia ouvre ses portes au coin du boulevard Samson et de la 100e Avenue, à Chomedey. Une pâtisserie grecque de quartier, où l'on vient autant pour le baklava du matin que pour le gâteau de la fête.",
+            "In 1995, Ambrosia opened its doors at the corner of Samson Boulevard and 100th Avenue in Chomedey. A neighbourhood Greek bakery, where people come as much for the morning baklava as for the party cake.")}</p>
+          <p>{L("Trois décennies plus tard, les pâtisseries sont toujours faites chaque jour. Et des familles nous écrivent qu'elles viennent depuis plus de dix ans : pour un anniversaire, un mariage, puis le baptême des petits.",
+            "Three decades later, the pastries are still made every day. And families tell us they've been coming for over ten years: for a birthday, a wedding, then the little ones' baptism.")}</p>
+          <p>{L("Au comptoir, on vous répond en français, en anglais ou en grec. Et sur Instagram, l'équipe ne se prend pas trop au sérieux : allez voir nos sketchs.",
+            "At the counter, we'll answer you in French, English or Greek. And on Instagram, the team doesn't take itself too seriously: go see our skits.")}</p>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:12px;margin-top:20px"><a class="btn" href={SITE.instagram} rel="noopener">{SITE.instagramHandle}</a><a class="btn outline" href={ROUTES.visit[lang]}>{L("Venez nous voir", "Come say hi")}</a></div>
+      </div>
+      <figure class="rv"><Photo k="patisseries-grecques/017" lang={lang} sizes="(max-width: 860px) 100vw, 50vw" eager /></figure>
+    </div></section>
+    <section class="band numbers">
+      <div class="wrap">
+        <div><span class="label">{L("En chiffres", "By the numbers")}</span><h2 style="margin-top:12px">{L("Trois décennies,", "Three decades,")} <em>{L("des milliers de fêtes", "thousands of parties")}</em></h2></div>
+        <div class="stats">
+          <div class="stat"><b>1995</b><span>{L("Ouverture à Chomedey", "Opened in Chomedey")}</span></div>
+          <div class="stat"><b>{L("1 714", "1,714")}</b><span>{L("Avis Google, note de 4,5", "Google reviews, rated 4.5")}</span></div>
+          <div class="stat"><b>26</b><span>{L("Saveurs de gâteau", "Cake flavours")}</span></div>
+          <div class="stat"><b>3</b><span>{L("Langues au comptoir", "Languages at the counter")}</span></div>
+        </div>
+      </div>
+    </section>
+    <section class="band paper"><div class="wrap">
+      <div class="sec-head"><span class="label">{L("L'équipe", "The team")}</span><h2>{L("Les gens", "The people")} <em>{L("derrière le comptoir", "behind the counter")}</em></h2>
+        <p class="note-box">{L("Photos de l'équipe et de la boutique à venir. On les ajoutera ici dès qu'elles sont prêtes.", "Team and storefront photos coming soon. We'll add them here as soon as they're ready.")}</p></div>
+    </div></section>
+    <Related lang={lang} items={[
+      { k: "pastries", photo: "patisseries-grecques/016", line: { fr: "Les recettes de la famille", en: "The family recipes" } },
+      { k: "gallery", photo: "mariage/007", line: { fr: "Plus de 400 vrais gâteaux", en: "Over 400 real cakes" } },
+      { k: "reviews", photo: "fruits-fromage/013", line: { fr: "Ce que disent nos clients", en: "What customers say" } },
+    ]} />
+  </>}
+
+  {page === "visit" && <>
+    <section class="band" style="padding-top:clamp(24px,4vw,48px);padding-bottom:0"><div class="wrap">
+      <span class="label" style="color:var(--gold-text)">{LOCAL.corner[lang]}</span>
+      <h1 style="font-size:clamp(36px,1.2rem + 3vw,60px);color:var(--burgundy);margin:10px 0 14px">{L("Heures et", "Hours and")} <em>{L("itinéraire", "directions")}</em></h1>
+      <p class="lead">{L("On est au 4657, boulevard Samson, dans Place 100, avec du stationnement gratuit juste devant. Ouvert tous les jours.", "We're at 4657 Samson Boulevard, in Place 100, with free parking right in front. Open every day.")}</p>
+    </div></section>
+    <LocalBlock lang={lang} title={lang === "fr" ? ["Tout pour", "nous trouver"] : ["Everything to", "find us"]} />
+    <section class="band paper"><div class="wrap cards3">
+      <div class="card"><span class="label">{L("Commander un gâteau", "Order a cake")}</span><h3>{L("En ligne, 7 jours d'avance", "Online, 7 days ahead")}</h3><p>{L("Notre assistant prend votre commande en deux minutes.", "Our assistant takes your order in two minutes.")}</p><button class="btn small" type="button" data-chat>{L("Commander un gâteau de célébration", "Order a celebration cake")}</button></div>
+      <div class="card"><span class="label">{L("Mariage", "Wedding")}</span><h3>{L("Consultation gratuite", "Free consultation")}</h3><p>{L("Avec le propriétaire, à la pâtisserie ou par téléphone.", "With the owner, at the bakery or by phone.")}</p><a class="btn small outline" href={ROUTES.weddingForm[lang]}>{L("Réserver", "Book")}</a></div>
+      <div class="card"><span class="label">Instagram</span><h3>{SITE.instagramHandle}</h3><p>{L("Nos gâteaux de la semaine et nos sketchs.", "This week's cakes and our skits.")}</p><a class="btn small outline" href={SITE.instagram} rel="noopener">{L("Suivre", "Follow")}</a></div>
+    </div></section>
+  </>}
+
+  {page === "delivery" && <>
+    <section class="band" style="padding-top:clamp(24px,4vw,48px)"><div class="wrap split">
+      <div>
+        <span class="label" style="color:var(--gold-text)">{L("Laval · Montréal · environs", "Laval · Montréal · nearby")}</span>
+        <h1 style="font-size:clamp(34px,1.2rem + 3vw,56px);line-height:1.05;color:var(--burgundy);margin:10px 0 18px">{L("Livraison de gâteaux", "Cake delivery")} <em>{L("à Laval et Montréal", "in Laval and Montréal")}</em></h1>
+        <div class="prose">
+          <p>{L("On livre les gâteaux de mariage, les gâteaux sur mesure et les tables sucrées partout à Laval, à Montréal et dans les environs.", "We deliver wedding cakes, custom cakes and sweet tables across Laval, Montréal and nearby.")}</p>
+          <ul>
+            <li>{L("Les frais dépendent de la distance. L'équipe vous les confirme à l'appel de suivi (ou à la consultation, pour un mariage).", "Fees depend on distance. The team confirms them on your follow-up call (or at the consultation, for a wedding).")}</li>
+            <li>{L("L'adresse de livraison est prise par l'équipe à l'appel, pas en ligne.", "The delivery address is taken by the team on the call, not online.")}</li>
+            <li>{L("Pour un mariage, on livre et on monte le gâteau à votre salle.", "For a wedding, we deliver and set up the cake at your venue.")}</li>
+            <li>{L("Vous préférez ramasser? Au 4657, boul. Samson, stationnement gratuit.", "Prefer to pick up? At 4657 Samson Blvd., free parking.")}</li>
+          </ul>
+          <p class="todo">{L("À confirmer avec le propriétaire : liste de salles de réception où vous livrez souvent.", "To confirm with the owner: list of venues you often deliver to.")}</p>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:12px;margin-top:20px"><button class="btn" type="button" data-chat>{L("Commander un gâteau de célébration", "Order a celebration cake")}</button><a class="btn outline" href={ROUTES.weddingForm[lang]}>{L("Consultation mariage", "Wedding consultation")}</a></div>
+      </div>
+      <figure class="rv"><Photo k="mariage/022" lang={lang} sizes="(max-width: 860px) 100vw, 50vw" eager /></figure>
+    </div></section>
+    <section class="band paper"><div class="wrap"><div class="sec-head"><span class="label">{L("Questions fréquentes", "Questions")}</span><h2>{L("La livraison,", "Delivery,")} <em>{L("en bref", "in short")}</em></h2></div><Faq items={(faqGroups as any)[3][1]} /></div></section>
+    <Related lang={lang} items={[
+      { k: "wedding", photo: "mariage/036", line: { fr: "Livré et monté à votre salle", en: "Delivered and set up at your venue" } },
+      { k: "sweet", photo: "table-sucree/028", line: { fr: "Tables sucrées pour vos invités", en: "Sweet tables for your guests" } },
+      { k: "custom", photo: "anniversaire-adulte/034", line: { fr: "Toutes les occasions", en: "Every occasion" } },
+    ]} />
+  </>}
+
+  {page === "faq" && <>
+    <section class="band" style="padding-top:clamp(24px,4vw,48px)"><div class="wrap">
+      <span class="label" style="color:var(--gold-text)">{L("Tout ce qu'on nous demande", "Everything people ask us")}</span>
+      <h1 style="font-size:clamp(36px,1.2rem + 3vw,60px);color:var(--burgundy);margin:10px 0 24px">{L("Questions", "Frequently asked")} <em>{L("fréquentes", "questions")}</em></h1>
+      {(faqGroups as [string, { q: string; a: string }[]][]).map(([g, items]) => <div style="margin-bottom:36px"><h2 style="font-size:clamp(24px,2vw,30px);color:var(--burgundy);margin-bottom:12px">{g}</h2><Faq items={items} /></div>)}
+      <p class="lead">{L("Pas trouvé votre réponse? Appelez-nous au", "Didn't find your answer? Call us at")} <a href={`tel:${SITE.phoneIntl}`}>{SITE.phone}</a>.</p>
+    </div></section>
+    <Related lang={lang} items={[
+      { k: "weddingForm", photo: "mariage/028", line: { fr: "Réservez votre consultation gratuite", en: "Book your free consultation" } },
+      { k: "delivery", photo: "mariage/036", line: { fr: "Laval, Montréal et Rive-Nord", en: "Laval, Montreal and North Shore" } },
+      { k: "menu", photo: "patisseries-grecques/001", line: { fr: "Gâteaux, pâtisseries et prix en magasin", en: "Cakes, pastries and in-store items" } },
+    ]} />
+    <Cta lang={lang} kind="custom" />
+  </>}
+
+  {page === "privacy" && <>
+    <section class="band" style="padding-top:clamp(24px,4vw,48px)"><div class="wrap prose" style="max-width:760px">
+      <h1 style="font-size:clamp(34px,1.2rem + 2.5vw,52px);color:var(--burgundy);margin-bottom:12px">{L("Politique de confidentialité", "Privacy policy")}</h1>
+      <p class="soft">{L("Dernière mise à jour : octobre 2026", "Last updated: October 2026")}</p>
+      {lang === "fr" ? <>
+        <p>Pâtisserie Ambrosia (4657, boul. Samson, Laval (Québec) H7W 2H2) respecte votre vie privée et protège vos renseignements personnels conformément à la Loi sur la protection des renseignements personnels dans le secteur privé (Loi 25).</p>
+        <h2>Responsable de la protection des renseignements personnels</h2>
+        <p><span class="todo">Nom à confirmer par le propriétaire</span>, joignable à <a href={`mailto:${SITE.email}`}>{SITE.email}</a> ou au {SITE.phone}.</p>
+        <h2>Ce que nous recueillons</h2>
+        <ul><li>Formulaire de consultation mariage : noms, téléphone, courriel, date du mariage, nombre d'invités, salle, préférences.</li><li>Clavardage de commande (GoHighLevel) : nom, téléphone, courriel, détails du gâteau et photos d'inspiration que vous nous envoyez.</li><li>Aucun témoin publicitaire ni outil d'analyse n'est activé sans votre consentement.</li></ul>
+        <h2>Pourquoi</h2><p>Seulement pour préparer votre commande ou votre consultation, vous rappeler et vous livrer. Nous ne vendons ni ne louons vos renseignements.</p>
+        <h2>Fournisseurs</h2><p>Nos formulaires et notre clavardage sont hébergés par des fournisseurs (Netlify, GoHighLevel) qui peuvent stocker les données à l'extérieur du Québec, avec des mesures de sécurité appropriées.</p>
+        <h2>Conservation et vos droits</h2><p>Nous conservons vos renseignements le temps nécessaire à votre commande et à nos obligations légales. Vous pouvez demander l'accès, la correction ou la suppression de vos renseignements en écrivant à <a href={`mailto:${SITE.email}`}>{SITE.email}</a>.</p>
+      </> : <>
+        <p>Pâtisserie Ambrosia (4657 Samson Blvd., Laval, Québec H7W 2H2) respects your privacy and protects your personal information under Québec's Act respecting the protection of personal information in the private sector (Law 25).</p>
+        <h2>Person in charge of personal information</h2>
+        <p><span class="todo">Name to be confirmed by the owner</span>, reachable at <a href={`mailto:${SITE.email}`}>{SITE.email}</a> or {SITE.phone}.</p>
+        <h2>What we collect</h2>
+        <ul><li>Wedding consultation form: names, phone, email, wedding date, guest count, venue, preferences.</li><li>Order chat (GoHighLevel): name, phone, email, cake details and inspiration photos you send us.</li><li>No advertising cookies or analytics run without your consent.</li></ul>
+        <h2>Why</h2><p>Only to prepare your order or consultation, call you back and deliver. We never sell or rent your information.</p>
+        <h2>Service providers</h2><p>Our forms and chat are hosted by providers (Netlify, GoHighLevel) that may store data outside Québec, with appropriate safeguards.</p>
+        <h2>Retention and your rights</h2><p>We keep your information as long as needed for your order and our legal obligations. You can ask to access, correct or delete your information by writing to <a href={`mailto:${SITE.email}`}>{SITE.email}</a>.</p>
+      </>}
+    </div></section>
+  </>}
+</Base>
+
+<script>
+  const chips = [...document.querySelectorAll<HTMLButtonElement>("[data-rf]")];
+  const cards = [...document.querySelectorAll<HTMLElement>(".rcard[data-tags]")];
+  chips.forEach((c) => c.addEventListener("click", () => {
+    chips.forEach((o) => o.setAttribute("aria-pressed", String(o === c)));
+    const f = c.dataset.rf!; cards.forEach((card) => (card.hidden = f !== "all" && !card.dataset.tags!.split(" ").includes(f)));
+  }));
+</script>

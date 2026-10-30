@@ -1,0 +1,18 @@
+---
+import Base from "../../layouts/Base.astro";
+import Photo from "../../components/Photo.astro";
+import { SITE } from "../../data/site";
+---
+<Base lang="en" route="home" htmlLang="el" canonicalPath="/el/" greek title="Ζαχαροπλαστείο Ambrosia, Λαβάλ · από το 1995"
+  description="Ελληνικό ζαχαροπλαστείο στο Λαβάλ από το 1995: τούρτες γάμου, τούρτες κατά παραγγελία, μπακλαβάς, γαλακτομπούρεκο, μπουγάτσα.">
+  <section class="band" style="padding-top:clamp(24px,4vw,48px)"><div class="wrap split">
+    <div>
+      <span class="label" style="color:var(--gold-text)">Ambrosia. Πάντα.</span>
+      <h1 style="font-size:clamp(36px,1.2rem + 3vw,60px);line-height:1.05;color:var(--burgundy);margin:10px 0 18px">Καλώς ήρθατε στο <em>Ambrosia</em></h1>
+      <p class="lead">Ελληνικό οικογενειακό ζαχαροπλαστείο στο Λαβάλ από το 1995. Τούρτες γάμου, τούρτες για κάθε γιορτή, και κάθε μέρα στη βιτρίνα: μπακλαβάς, γαλακτομπούρεκο, μπουγάτσα, κανταΐφι, σπανακόπιτα, τυρόπιτα, τσουρέκι.</p>
+      <p style="margin-top:14px">4657 boul. Samson, Laval · <a href={`tel:${SITE.phoneIntl}`}>{SITE.phone}</a> · Μιλάμε ελληνικά, γαλλικά και αγγλικά.</p>
+      <div style="display:flex;flex-wrap:wrap;gap:12px;margin-top:22px"><a class="btn" href="/" hreflang="fr" lang="fr">Français</a><a class="btn outline" href="/en/" hreflang="en" lang="en">English</a><a class="btn outline" href={SITE.maps} rel="noopener">Οδηγίες</a></div>
+    </div>
+    <figure class="rv"><Photo k="patisseries-grecques/016" lang="fr" alt="Μπακλαβάς με καρύδια" eager /></figure>
+  </div></section>
+</Base>

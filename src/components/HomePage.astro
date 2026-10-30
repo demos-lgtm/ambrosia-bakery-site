@@ -1,0 +1,280 @@
+---
+import Base from "../layouts/Base.astro";
+import Photo from "./Photo.astro";
+import LocalBlock from "./LocalBlock.astro";
+import { getImage } from "astro:assets";
+import { photo } from "../lib/photos";
+import { REVIEWS } from "../data/reviews";
+import { SITE, ROUTES, T, COVERS, type Lang } from "../data/site";
+import { OCCASIONS } from "../data/occasions";
+import sealUrl from "../assets/brand/ambrosia-seal.svg?url";
+import wheatCream from "../assets/brand/ambrosia-wheat-cream.svg?url";
+import wheat from "../assets/brand/ambrosia-wheat.svg?url";
+
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const t = T[lang];
+const L = (fr: string, en: string) => (lang === "fr" ? fr : en);
+const PREVIEW = process.env.PREVIEW === "1";
+
+const WALL = ["mariage/036", "anniversaire-adulte/028", "bapteme/018", "mariage/013", "anniversaire-adulte/034", "baby-shower/016", "table-sucree/009",
+  "fiancailles-anniversaire/005", "mariage/038", "anniversaire-adulte/041", "anniversaire-enfant/006", "finissants/007", "mariage/036", "anniversaire-adulte/012", "table-sucree/022"];
+const wall = await Promise.all(WALL.map(async (k) => ({ k, img: await getImage({ src: photo(k).img, width: PREVIEW ? 900 : 420, format: "webp", quality: 70 }) })));
+const cols = [0, 1, 2].map((c) => wall.filter((_, i) => i % 3 === c));
+// Mobile ribbon: its own curated set, two rows, no photo repeated between rows (top: weddings, bottom: other celebrations)
+const RIBBON = [
+  ["mariage/036", "mariage/005", "mariage/006", "mariage/028", "mariage/007", "mariage/013", "mariage/038", "mariage/023", "mariage/020", "mariage/041", "mariage/008", "mariage/035", "mariage/027"],  // weddings
+  ["anniversaire-adulte/022", "bapteme/019", "anniversaire-adulte/011", "fiancailles-anniversaire/006", "anniversaire-adulte/021", "baby-shower/019", "anniversaire-adulte/034", "bapteme/010", "anniversaire-adulte/041", "anniversaire-enfant/006", "fiancailles-anniversaire/005", "anniversaire-adulte/019", "anniversaire-adulte/028"],  // other celebrations
+];
+const ribbon = await Promise.all(RIBBON.map((row) => Promise.all(row.map(async (k) => ({ k, img: await getImage({ src: photo(k).img, width: PREVIEW ? 360 : 260, format: "webp", quality: 72 }) })))));
+const og = PREVIEW ? null : await getImage({ src: photo(COVERS.wedding).img, width: 1200, height: 630, fit: "cover", format: "jpg", quality: 78 });
+
+const occLines: Record<string, { fr: [string, string]; en: [string, string] }> = {
+  birthday: { fr: ["Les belles années", "18, 30, 50, 90 ans : on a fait tous les chiffres."], en: ["The good years", "18, 30, 50, 90: we've done every number."] },
+  themed: { fr: ["Leur héros préféré", "Personnages, jeux, sports et sacs de designer."], en: ["Their favourite hero", "Characters, games, sports and designer bags."] },
+  baptism: { fr: ["Une croix, son prénom", "Pour les grandes journées à l'église et à la maison."], en: ["A cross, their name", "For the big days at church and at home."] },
+  babyshower: { fr: ["Fille ou garçon?", "Lettres dorées, fleurs et révélations."], en: ["Boy or girl?", "Gold letters, flowers and reveals."] },
+  graduation: { fr: ["Bravo, diplômé·e", "Mortiers, diplômes et l'année de la promo."], en: ["Congrats, grad", "Mortarboards, diplomas and the class year."] },
+  engagement: { fr: ["Elle a dit oui", "Et 25 ans plus tard, on refait un gâteau."], en: ["She said yes", "And 25 years later, we bake again."] },
+};
+const wedSteps = lang === "fr" ? [
+  ["I · Consultation", "On s'assoit", "ensemble", "30 à 60 minutes avec le propriétaire, à la pâtisserie ou au téléphone. C'est gratuit et sans engagement. Apportez vos photos, votre palette, vos idées folles.", "mariage/013"],
+  ["II · Design", "Fondant, crème au beurre", "ou nu", "Les étages, les fleurs, les détails dorés. Le fondant et la crème au beurre offrent les mêmes possibilités; la crème au beurre coûte un peu moins cher.", "mariage/038"],
+  ["III · Saveurs", "Pistache, Serano", "ou tiramisu?", "Vingt-six saveurs maison, de la vanille aux classiques grecs. Ajoutez une table sucrée : mini cheesecakes, éclairs, bougatsa, croquembouche.", "mariage/036"],
+  ["IV · Le grand jour", "Livré, monté,", "parfait", "On livre à votre salle à Laval, à Montréal et dans les environs. Les frais dépendent de la distance.", "mariage/007"],
+] : [
+  ["I · Consultation", "We sit down", "together", "30 to 60 minutes with the owner, at the bakery or by phone. Free, no obligation. Bring your photos, your palette, your wildest ideas.", "mariage/013"],
+  ["II · Design", "Fondant, buttercream", "or naked", "Tiers, flowers, gold details. Fondant and buttercream offer the same design possibilities; buttercream costs a little less.", "mariage/038"],
+  ["III · Flavours", "Pistachio, Serano", "or tiramisu?", "Twenty-six house flavours, from vanilla to Greek classics. Add a sweet table: mini cheesecakes, éclairs, bougatsa, croquembouche.", "mariage/036"],
+  ["IV · The big day", "Delivered, set up,", "perfect", "We deliver to your venue in Laval, Montréal and nearby. Fees depend on distance.", "mariage/007"],
+];
+const wedImgs = PREVIEW ? null : null;
+const reels = ["img-9507", "img-6674", "img-4018", "img-9508", "img-6804", "img-6809"];
+const pastries = ["Baklava", "Galaktoboureko", "Bougatsa", "Kataïfi", "Karidopita", "Loukoumades", "Spanakopita", "Tiropita", "Tsoureki", lang === "fr" ? "Gâteau au fromage" : "Cheesecake", "Croissants", lang === "fr" ? "Pain frais" : "Fresh bread"];
+
+const schema = [{ "@context": "https://schema.org", "@type": "WebSite", name: SITE.name, alternateName: SITE.altName, url: `${SITE.url}/`, inLanguage: ["fr-CA", "en-CA"] }];
+const title = L("Gâteaux sur mesure et pâtisserie grecque à Laval | Ambrosia", "Custom Cakes & Greek Bakery in Laval | Pâtisserie Ambrosia");
+const desc = L("Pâtisserie familiale à Laval depuis 1995 : gâteaux de mariage, gâteaux sur mesure et pâtisseries grecques. 1 700+ avis Google. Commandez en ligne.",
+  "Family bakery in Laval since 1995: wedding cakes, custom celebration cakes and Greek pastries. 1,700+ Google reviews, 4.5 stars. Order online.");
+---
+<Base lang={lang} route="home" title={title} description={desc} ogImage={og?.src} schema={schema} greek>
+  <section class="mhero" aria-labelledby="mh1">
+    <img class="mposter" src="/media/brand/wheat-poster.jpg" alt="" fetchpriority="high" width="1280" height="720">
+    <video muted loop playsinline autoplay preload="metadata" poster="/media/brand/wheat-poster.jpg" aria-hidden="true" data-hero><source src="/media/brand/wheat-loop.mp4" type="video/mp4"></video>
+    <div class="mseal"><img src={sealUrl} alt={L("Pâtisserie Ambrosia, depuis 1995", "Pâtisserie Ambrosia, since 1995")} width="84" height="84"></div>
+    <div class="mcopy">
+      <span class="label">{L("Chomedey, Laval · depuis 1995", "Chomedey, Laval · since 1995")}</span>
+      <p class="mh1" id="mh1">{L("Gâteaux", "Custom cakes")} <em>{L("sur mesure", "")}</em>{L(" et pâtisseries grecques à Laval", " and Greek pastries in Laval")}</p>
+      <p class="mline">Ambrosia. {L("Toujours.", "Always.")} <span lang="el">Πάντα.</span></p>
+      <div class="mctas">
+        <a class="btn light" href={ROUTES.custom[lang]}>{L("Gâteaux de célébration sur mesure", "Custom celebration cakes")}</a>
+        <a class="btn ghost" href={ROUTES.wedding[lang]}>{L("Gâteaux de mariage", "Wedding cakes")}</a>
+      </div>
+      <a class="mrate" href={ROUTES.reviews[lang]}><b>{lang === "fr" ? SITE.rating : SITE.ratingEn}</b><span>★★★★★</span>{t.reviewsLine(lang === "fr" ? "1 714" : "1,714")}</a>
+    </div>
+    <span class="mcue" aria-hidden="true"></span>
+  </section>
+  <div class="ribbon" aria-hidden="true">
+    {ribbon.map((row, i) => (
+      <div class={`rrow ${i ? "rev" : ""}`}>{[...row, ...row].map((w) => <img src={w.img.src} alt="" loading={i ? "lazy" : "eager"} decoding="async" width="116" height="145" />)}</div>
+    ))}
+  </div>
+  <section class="hero-home has-mhero">
+    <div class="wrap">
+      <div>
+        <span class="label" style="color:var(--gold-text)">{L("Pâtisserie · Boulangerie · Chomedey, Laval", "Pâtisserie · Bakery · Chomedey, Laval")}</span>
+        <h1>{L("Gâteaux", "Custom cakes")} <em>{L("sur mesure", "")}</em>{L(" et pâtisseries grecques à Laval", " and Greek pastries in Laval")}</h1>
+        <p class="brandline">Ambrosia. {L("Toujours.", "Always.")} <span lang="el">Πάντα.</span></p>
+        <p class="lead">{L("Mariages, anniversaires, baptêmes, finissants. Depuis trois décennies, les familles de Laval fêtent avec nos gâteaux, et repartent avec une boîte de baklava.",
+          "Weddings, birthdays, baptisms, graduations. For three decades, Laval families have celebrated with our cakes, and left with a box of baklava.")}</p>
+        <div class="ctas">
+          <a class="btn" href={ROUTES.custom[lang]}>{L("Gâteaux de célébration sur mesure", "Custom celebration cakes")} <img class="w" src={wheatCream} alt="" width="15" height="19"></a>
+          <a class="btn outline" href={ROUTES.wedding[lang]}>{L("Gâteaux de mariage", "Wedding cakes")}</a>
+        </div>
+        <a class="proof" href={ROUTES.reviews[lang]}>
+          <span class="badge"><span><b>{lang === "fr" ? SITE.rating : SITE.ratingEn}</b><small>★★★★★</small></span></span>
+          <p><strong>{t.reviewsLine(lang === "fr" ? "1 714" : "1,714")}.</strong> {L("Des clients fidèles depuis plus de 10 ans, et ils le disent.", "Customers for 10+ years, and they say so.")}</p>
+        </a>
+      </div>
+      <div class="wall" role="img" aria-label={L("Quelques gâteaux faits chez Ambrosia", "A few cakes made at Ambrosia")}>
+        {cols.map((col) => (
+          <div class="col">
+            {col.map((w) => <img src={w.img.src} alt="" width={w.img.attributes.width} height={w.img.attributes.height} decoding="async" />)}
+            {col.map((w) => <img src={w.img.src} alt="" aria-hidden="true" width={w.img.attributes.width} height={w.img.attributes.height} loading="lazy" decoding="async" />)}
+          </div>
+        ))}
+        <div class="seal-wrap"><img src={sealUrl} alt={L("Pâtisserie Ambrosia, depuis 1995", "Pâtisserie Ambrosia, since 1995")} width="170" height="170"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="band paper" id="avis">
+    <div class="wrap">
+      <div class="rev-head">
+        <div class="sec-head" style="margin:0"><span class="label">{L("Ce que disent nos clients", "What our customers say")}</span><h2>{L("Plus de 1 700 familles", "Over 1,700 families")} <em>{L("ont goûté", "tasted it")}</em>{L(", puis l'ont écrit", ", then wrote it down")}</h2></div>
+        <a class="bigrate" href={SITE.reviewsUrl} rel="noopener"><b>{lang === "fr" ? SITE.rating : SITE.ratingEn}</b><span><span class="st">★★★★★</span>{L("1 714 avis", "1,714 reviews")}<br>{L("sur Google", "on Google")}</span></a>
+      </div>
+    </div>
+    <div class="marquee" tabindex="0" aria-label={L("Avis Google, défilement", "Google reviews, scrolling")}>
+      {[REVIEWS, [...REVIEWS.slice(4), ...REVIEWS.slice(0, 4)]].map((list, ri) => (
+        <div class={`row ${ri ? "r2" : ""}`}>
+          {[0, 1].map((dup) => list.map((r) => (
+            <figure class={`rcard ${dup ? "dup" : ""}`} aria-hidden={dup ? "true" : undefined}>
+              <span class="st">★★★★★</span><blockquote lang={r.lang}><q>{r.q}</q></blockquote>
+              <figcaption><strong>{r.name}</strong><span>{r.what[lang]}</span></figcaption>
+            </figure>
+          )))}
+        </div>
+      ))}
+    </div>
+    <div class="wrap"><p class="rev-note">{L("Extraits d'avis Google publics, en version originale.", "Excerpts of public Google reviews, in their original language.")} <a href={ROUTES.reviews[lang]}>{L("Lire tous les avis", "Read all reviews")}</a></p></div>
+  </section>
+
+  <section class="band" id="commander">
+    <div class="wrap">
+      <div class="sec-head"><span class="label">{L("Trois façons d'avoir votre gâteau", "Three ways to get your cake")}</span><h2>{L("Grand mariage, petite fête ou", "Big wedding, small party or")} <em>{L("dernière minute", "last minute")}</em></h2><p>{L("Choisissez le chemin qui vous ressemble. On s'occupe du reste.", "Pick the path that fits. We'll handle the rest.")}</p></div>
+      <div class="ways">
+        <article class="way rv">
+          <div class="ph"><Photo k="mariage/002" lang={lang} sizes="(max-width: 900px) 100vw, 33vw" widths={[480, 800]} /></div>
+          <div class="body"><span class="label">{L("Gâteaux de mariage", "Wedding cakes")}</span><h3>{L("Une vraie conversation", "A real conversation")}</h3>
+            <p>{L("Une consultation gratuite avec le propriétaire, à la pâtisserie ou par téléphone.", "A free consultation with the owner, at the bakery or by phone.")}</p>
+            <dl><dt>{L("Délai", "Notice")}</dt><dd>{L("4 semaines et plus", "4+ weeks")}</dd><dt>{L("Pour", "For")}</dt><dd>{L("10 invités et plus", "10+ guests")}</dd></dl>
+            <div class="way-ctas"><a class="btn" href={ROUTES.weddingForm[lang]}>{L("Réserver ma consultation", "Book my consultation")}</a>
+              <a class="btn outline" href={ROUTES.wedding[lang]}>{L("Voir les gâteaux de mariage", "See wedding cakes")}</a></div></div>
+        </article>
+        <article class="way rv">
+          <div class="ph"><Photo k={COVERS.custom} lang={lang} sizes="(max-width: 900px) 100vw, 33vw" widths={[480, 800]} /></div>
+          <div class="body"><span class="label">{L("Gâteaux de célébration sur mesure", "Custom celebration cakes")}</span><h3>{L("Votre idée, notre gâteau", "Your idea, our cake")}</h3>
+            <p>{L("Anniversaire, baptême, finissants, baby shower. Notre assistant vous guide en deux minutes.", "Birthday, baptism, graduation, baby shower. Our assistant guides you in two minutes.")}</p>
+            <dl><dt>{L("Délai", "Notice")}</dt><dd>{L("7 jours et plus", "7+ days")}</dd><dt>{L("Choix", "Choice")}</dt><dd>{L("4 finitions, 26 saveurs", "4 finishes, 26 flavours")}</dd></dl>
+            <div class="way-ctas"><button class="btn" type="button" data-chat>{t.orderLong}</button>
+              <a class="btn outline" href={ROUTES.custom[lang]}>{L("Voir les gâteaux de célébration", "See celebration cakes")}</a></div></div>
+        </article>
+        <article class="way cat rv">
+          <div class="ph cat-ph"><div><img src={wheat} alt="" width="40" height="52" style="width:40px;height:auto"><b>{L("Le catalogue", "The catalogue")}</b><small>{L("En boutique, 4657 boul. Samson", "In store, 4657 Samson Blvd.")}</small></div></div>
+          <div class="body"><span class="label">{L("Catalogue en boutique", "In-store catalogue")}</span><h3>{L("Joli, rapide, abordable", "Pretty, quick, affordable")}</h3>
+            <p>{L("Des gâteaux déjà dessinés, à choisir dans notre catalogue au comptoir. Parfait pour cette semaine.", "Ready-designed cakes, chosen from our catalogue at the counter. Perfect for this week.")}</p>
+            <dl><dt>{L("Délai", "Notice")}</dt><dd>{L("Passez nous voir", "Drop by")}</dd><dt>{L("Où", "Where")}</dt><dd>{lang === "fr" ? SITE.street : SITE.streetEn}</dd></dl>
+            <div class="way-ctas"><a class="btn outline" href={ROUTES.catalogue[lang]}>{L("Voir le catalogue", "See the catalogue")}</a></div></div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="band paper">
+    <div class="wrap">
+      <div class="rail-head"><div class="sec-head"><span class="label">{L("Gâteaux sur mesure pour toutes les fêtes", "Custom cakes for every celebration")}</span><h2>{L("Quelle est", "What's the")} <em>{L("l'occasion?", "occasion?")}</em></h2><p>{L("Des idées, pas des modèles : chaque gâteau est créé sur mesure, d'après votre idée.", "Ideas, not set models: every cake is made to order, from your idea.")}</p></div>
+        <div class="rail-nav"><button type="button" aria-label={L("Précédent", "Previous")} data-rail="-1">←</button><button type="button" aria-label={L("Suivant", "Next")} data-rail="1">→</button></div></div>
+      <div class="rail" id="rail" tabindex="0" aria-label={L("Occasions", "Occasions")}>
+        {[...OCCASIONS].sort((a, b) => (a.key === "themed" ? -1 : b.key === "themed" ? 1 : 0)).map((o) => (
+          <a class="occ" href={ROUTES[o.key][lang]}>
+            <Photo k={o.key === "birthday" ? "anniversaire-adulte/028" : o.cover} lang={lang} sizes="(max-width: 700px) 76vw, 25vw" widths={[400, 720]} />
+            <span class="cap"><b>{occLines[o.key][lang][0]}</b><span>{occLines[o.key][lang][1]}</span><i>{o[lang].cardTitle} →</i></span>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="band white">
+    <div class="wrap">
+      <div class="sec-head"><span class="label">{L("Gâteaux de mariage à Laval", "Wedding cakes in Laval")}</span><h2>{L("Votre gâteau,", "Your cake,")} <em>{L("étage par étage", "tier by tier")}</em></h2><p>{L("Un gâteau de mariage mérite une vraie conversation, pas un formulaire.", "A wedding cake deserves a real conversation, not a form.")}</p></div>
+      <div class="seq">
+        <div class="stage" aria-hidden="true">
+          {wedSteps.map((s, i) => <Photo k={s[4]} lang={lang} class={i === 0 ? "on" : ""} sizes="45vw" />)}
+          <div class="tier"><span>{L("Étape", "Step")}</span><i class="on"></i><i></i><i></i><i></i></div>
+        </div>
+        <div class="steps">
+          {wedSteps.map((s, i) => (
+            <article class="step" data-i={i}>
+              <Photo k={s[4]} lang={lang} class="inline" sizes="100vw" />
+              <span class="num">{s[0]}</span><h3>{s[1]} <em>{s[2]}</em></h3><p>{s[3]}</p>
+              {i === 3 && <div style="display:flex;flex-wrap:wrap;gap:12px;align-items:center"><a class="btn" href={ROUTES.weddingForm[lang]}>{L("Réserver ma consultation", "Book my consultation")} <img class="w" src={wheatCream} alt="" width="15" height="19"></a><a class="btn outline" href={ROUTES.wedding[lang]}>{L("Voir les gâteaux de mariage", "See wedding cakes")}</a></div>}
+            </article>
+          ))}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="band paper" id="comptoir">
+    <div class="wrap split">
+      <figure class="rv"><Photo k="patisseries-grecques/015" lang={lang} sizes="(max-width: 860px) 100vw, 50vw" /></figure>
+      <div>
+        <div class="sec-head" style="margin-bottom:0"><span class="label">{L("Chaque jour au comptoir", "Every day at the counter")}</span><h2>{L("Pâtisseries grecques,", "Greek pastries,")} <em>{L("tous les matins", "every morning")}</em></h2>
+          <p>{L("Pas besoin de commander : passez, choisissez, repartez avec une boîte. Notre gâteau au fromage est le plus cité dans nos avis.", "No need to order: drop by, pick, leave with a box. Our cheesecake is the most mentioned thing in our reviews.")}</p></div>
+        <ul class="pills">{pastries.map((p) => <li>{p}</li>)}</ul>
+        <div style="display:flex;flex-wrap:wrap;gap:12px"><a class="btn" href={ROUTES.pastries[lang]}>{L("Voir les pâtisseries", "See the pastries")}</a><a class="btn outline" href={ROUTES.cheesecake[lang]}>{L("Notre gâteau au fromage", "Our cheesecake")}</a></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="band">
+    <div class="wrap">
+      <div class="rail-head"><div class="sec-head"><span class="label">Instagram · {SITE.instagramHandle}</span><h2>{L("Dans la cuisine,", "In the kitchen,")} <em>{L("cette semaine", "this week")}</em></h2></div>
+        <a class="btn outline" href={SITE.instagram} rel="noopener">{L("Suivre", "Follow")} {SITE.instagramHandle}</a></div>
+      <div class="reels">
+        {reels.map((r) => (
+          <div class="reel"><video muted loop playsinline preload="none" poster={`/media/reels/${r}-poster.jpg`} data-reel><source src={`/media/reels/${r}.mp4`} type="video/mp4"></video><span>{SITE.instagramHandle}</span></div>
+        ))}
+      </div>
+      <p class="soft" style="margin-top:14px">{L("Nos sketchs drôles arrivent bientôt ici. En attendant, ils sont sur Instagram.", "Our funny skits are coming here soon. Meanwhile, they're on Instagram.")}</p>
+    </div>
+  </section>
+
+  <section class="band numbers">
+    <video class="bgimg" muted loop playsinline autoplay poster="/media/brand/flour-poster.jpg" aria-hidden="true"><source src="/media/brand/flour-loop.mp4" type="video/mp4"></video>
+    <div class="wrap">
+      <div><span class="label">{L("Depuis 1995 à Chomedey", "Since 1995 in Chomedey")}</span><h2 style="margin-top:12px">{L("Trois décennies,", "Three decades,")} <em>{L("des milliers de fêtes", "thousands of parties")}</em></h2></div>
+      <div class="stats">
+        <div class="stat"><b>1995</b><span>{L("Ouverture, coin Samson et 100e Avenue", "Opened at Samson and 100th Avenue")}</span></div>
+        <div class="stat"><b>{L("1 714", "1,714")}</b><span>{L("Avis Google, note de 4,5", "Google reviews, rated 4.5")}</span></div>
+        <div class="stat"><b>26</b><span>{L("Saveurs de gâteau maison", "House cake flavours")}</span></div>
+        <div class="stat"><b>3</b><span>{L("Langues au comptoir : français, anglais, grec", "Languages at the counter: French, English, Greek")}</span></div>
+      </div>
+      <div><a class="btn" style="background:var(--cream);color:var(--burgundy);border-color:var(--cream)" href={ROUTES.story[lang]}>{L("Notre histoire", "Our story")}</a></div>
+    </div>
+  </section>
+
+  <LocalBlock lang={lang} title={lang === "fr" ? ["On a toujours", "quelque chose de frais"] : ["There's always", "something fresh"]} />
+</Base>
+
+<script>
+  const rail = document.getElementById("rail");
+  document.querySelectorAll<HTMLButtonElement>("[data-rail]").forEach((b) => b.addEventListener("click", () => rail?.scrollBy({ left: (rail.clientWidth * 0.8) * +b.dataset.rail!, behavior: "smooth" })));
+  const stage = document.querySelector(".stage");
+  if (stage) {
+    const imgs = [...stage.querySelectorAll("img")];
+    const bars = [...stage.querySelectorAll(".tier i")];
+    const io = new IntersectionObserver((es) => es.forEach((e) => {
+      if (!e.isIntersecting) return;
+      const i = +(e.target as HTMLElement).dataset.i!;
+      imgs.forEach((im, k) => im.classList.toggle("on", k === i));
+      bars.forEach((b, k) => b.classList.toggle("on", k <= i));
+    }), { rootMargin: "-45% 0px -45% 0px" });
+    document.querySelectorAll(".seq .step").forEach((s) => io.observe(s));
+  }
+  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const vio = new IntersectionObserver((es) => es.forEach((e) => {
+    const v = e.target as HTMLVideoElement;
+    if (e.isIntersecting && !reduce) v.play().catch(() => {}); else v.pause();
+  }), { threshold: 0.4 });
+  document.querySelectorAll<HTMLVideoElement>("video[data-reel], video[data-hero], .numbers video").forEach((v) => vio.observe(v));
+
+  // Stacked "three ways" cards (phones): a card only pins once its whole body, buttons included,
+  // has scrolled into view above the quick-action bar, so the next card never covers unseen content.
+  const ways = [...document.querySelectorAll<HTMLElement>(".ways .way")];
+  const pin = () => {
+    const mobile = matchMedia("(max-width: 900px)").matches;
+    const bar = document.querySelector<HTMLElement>(".actionbar");
+    const barH = bar && getComputedStyle(bar).display !== "none" ? bar.offsetHeight : 0;
+    ways.forEach((w, i) => {
+      if (!mobile) { w.style.top = ""; return; }
+      const base = 84 + i * 14;
+      const fit = innerHeight - barH - 16 - w.offsetHeight;
+      w.style.top = Math.min(base, fit) + "px";
+    });
+  };
+  pin(); addEventListener("resize", pin); addEventListener("load", pin);
+  if ("ResizeObserver" in window) { const ro = new ResizeObserver(pin); ways.forEach((w) => ro.observe(w)); }
+</script>

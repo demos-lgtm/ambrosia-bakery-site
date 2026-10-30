@@ -1,0 +1,119 @@
+---
+import { getImage } from "astro:assets";
+import Photo from "./Photo.astro";
+import Base from "../layouts/Base.astro";
+import Faq from "./Faq.astro";
+import { HUB, OCCASIONS } from "../data/occasions";
+import { photo, photosFor } from "../lib/photos";
+import { SITE, ROUTES, T, FLAVOURS, type Lang } from "../data/site";
+import wheatCream from "../assets/brand/ambrosia-wheat-cream.svg?url";
+import wheat from "../assets/brand/ambrosia-wheat.svg?url";
+
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const h = HUB[lang];
+const t = T[lang];
+const PREVIEW = process.env.PREVIEW === "1";
+const fm = PREVIEW ? ["webp"] : ["avif", "webp"];
+const heroP = photo("anniversaire-adulte/034");
+const og = process.env.PREVIEW === "1" ? { src: "/brand/og-default.jpg" } : await getImage({ src: heroP.img, width: 1200, height: 630, fit: "cover", format: "jpg", quality: 78 });
+const cards = OCCASIONS.map((o) => ({ o, p: photo(o.cover), n: photosFor(o).length }));
+const strip = ["anniversaire-enfant/005", "bapteme/006", "anniversaire-adulte/025", "baby-shower/002", "finissants/005", "anniversaire-adulte/030"].map(photo);
+const schema = [
+  { "@context": "https://schema.org", "@type": "Service", name: lang === "fr" ? "Gâteaux personnalisés" : "Custom cakes", serviceType: lang === "fr" ? "Gâteau personnalisé" : "Custom cake",
+    description: h.meta, url: new URL(ROUTES.custom[lang], SITE.url).href, provider: { "@id": `${SITE.url}/#bakery` },
+    areaServed: [{ "@type": "City", name: "Laval" }, { "@type": "City", name: "Montréal" }],
+    hasOfferCatalog: { "@type": "OfferCatalog", name: lang === "fr" ? "Occasions" : "Occasions", itemListElement: OCCASIONS.map((o) => ({ "@type": "Offer", itemOffered: { "@type": "Service", name: o[lang].crumb, url: new URL(ROUTES[o.key][lang], SITE.url).href } })) } },
+  { "@context": "https://schema.org", "@type": "FAQPage", mainEntity: h.faq.map((f) => ({ "@type": "Question", name: f.q, acceptedAnswer: { "@type": "Answer", text: f.a } })) },
+];
+---
+<Base lang={lang} route="custom" title={h.title} description={h.meta} ogImage={og.src} crumbs={[{ name: lang === "fr" ? "Gâteaux de célébration" : "Celebration cakes" }]} schema={schema}>
+  <section class="ohero">
+    <div class="wrap">
+      <div>
+        <span class="label">{h.eyebrow}</span>
+        <h1>{h.h1} <em>{h.h1em}</em></h1>
+        <p class="lead">{h.intro}</p>
+        <div class="facts"><span>{lang === "fr" ? "7 jours d'avance" : "7 days' notice"}</span><span>{lang === "fr" ? "Dès 15 portions" : "From 15 servings"}</span><span>{lang === "fr" ? "Étages sans frais" : "No charge for tiers"}</span></div>
+        <div class="ctas">
+          <button class="btn" type="button" data-chat>{t.orderLong} <img class="w" src={wheatCream} alt="" width="15" height="19"></button>
+          <a class="btn outline" href="#occasions">{lang === "fr" ? "Voir des idées" : "See ideas"}</a>
+        </div>
+        <a class="proof" href={SITE.reviewsUrl} rel="noopener">
+          <span class="badge"><span><b>{lang === "fr" ? SITE.rating : SITE.ratingEn}</b><small>★★★★★</small></span></span>
+          <p><strong>{t.reviewsLine(lang === "fr" ? "1 714" : "1,714")}.</strong> {lang === "fr" ? "Des clients fidèles depuis plus de 10 ans." : "Customers who've been coming for 10+ years."}</p>
+        </a>
+      </div>
+      <figure>
+        <Photo k={heroP.key} lang={lang} sizes="(max-width: 860px) 100vw, 45vw" eager />
+        <figcaption>{heroP[lang]}</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section class="band paper" id="occasions">
+    <div class="wrap">
+      <div class="sec-head"><span class="label">{lang === "fr" ? "Portfolio par occasion" : "Portfolio by occasion"}</span><h2>{h.occTitle}</h2><p>{lang === "fr" ? "Chaque gâteau est fait sur mesure. Ces pages montrent ce qu'on a créé pour d'autres familles : votre gâteau sera le vôtre, inspiré d'ici, de Pinterest, d'Instagram ou de votre imagination." : "Every cake is made to order. These pages show what we've created for other families: yours will be your own, inspired by these, by Pinterest, Instagram or your imagination."}</p></div>
+      <div class="occ-grid">
+        {cards.map(({ o, p, n }) => (
+          <a class="occ rv" href={ROUTES[o.key][lang]}>
+            <Photo k={p.key} lang={lang} sizes="(max-width: 520px) 100vw, (max-width: 900px) 50vw, 33vw" />
+            <span class="cap"><b>{o[lang].cardTitle}</b><span>{o[lang].cardLine}</span><i>{n} {lang === "fr" ? "gâteaux →" : "cakes →"}</i></span>
+          </a>
+        ))}
+        <a class="occ wide rv" href={ROUTES.catalogue[lang]} style="background:var(--burgundy);display:grid;place-items:center;text-align:center;padding:28px">
+          <span style="display:grid;gap:12px;justify-items:center;color:var(--cream)">
+            <img src={wheat} alt="" width="40" height="52" style="width:40px;height:auto">
+            <b style="font-family:var(--font-display);font-weight:400;font-style:italic;font-size:30px;line-height:1.1">{lang === "fr" ? "Catalogue en boutique" : "In-store catalogue"}</b>
+            <span style="font-size:15px;color:#F3E6DA;max-width:26ch">{h.catalogue}</span>
+            <i style="font-style:normal;font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold)">{lang === "fr" ? "Voir les heures →" : "See hours →"}</i>
+          </span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="band">
+    <div class="wrap">
+      <div class="sec-head"><span class="label">{lang === "fr" ? "Comment ça marche" : "How it works"}</span><h2>{h.stepsTitle}</h2></div>
+      <div class="steps3">{h.steps.map(([a, b]) => <div class="step3 rv"><h3>{a}</h3><p>{b}</p></div>)}</div>
+    </div>
+  </section>
+
+  <section class="band white">
+    <div class="wrap" style="display:grid;gap:clamp(36px,5vw,64px)">
+      <div>
+        <div class="sec-head"><span class="label">{lang === "fr" ? "Finitions" : "Finishes"}</span><h2>{h.finishTitle}</h2></div>
+        <div class="finishes">{h.finishes.map(([a, b]) => <div class="finish rv"><b>{a}</b><span>{b}</span></div>)}</div>
+      </div>
+      <div>
+        <div class="sec-head"><span class="label">{lang === "fr" ? "Saveurs" : "Flavours"}</span><h2>{h.flavourTitle}</h2><p class="muted">{h.flavourNote}</p></div>
+        <div class="flavours" lang="en">{FLAVOURS.map((f) => <span>{f}</span>)}</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="band paper" aria-label={lang === "fr" ? "Quelques gâteaux" : "A few cakes"}>
+    <div class="wrap">
+      <div class="wheat-div" style="margin-bottom:36px"><img src={wheat} alt="" width="22" height="28"></div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px">
+        {strip.map((p) => <Photo k={p.key} lang={lang} sizes="(max-width: 640px) 50vw, 16vw" style="width:100%;aspect-ratio:4/5;object-fit:cover;border-radius:2px" />)}
+      </div>
+    </div>
+  </section>
+
+  <section class="band">
+    <div class="wrap">
+      <div class="sec-head"><span class="label">{lang === "fr" ? "Questions fréquentes" : "Questions"}</span><h2>{lang === "fr" ? <>Avant de <em>commander</em></> : <>Before you <em>order</em></>}</h2></div>
+      <Faq items={h.faq} />
+    </div>
+  </section>
+
+  <section class="cta-band">
+    <div class="wrap">
+      <div><h2>{lang === "fr" ? <>On fête <em>quoi?</em></> : <>What are we <em>celebrating?</em></>}</h2>
+        <p>{lang === "fr" ? "Notre assistant prend votre commande en deux minutes. Pour un mariage, réservez plutôt une consultation gratuite." : "Our assistant takes your order in two minutes. For a wedding, book a free consultation instead."}</p></div>
+      <div class="btns"><button class="btn" type="button" data-chat>{t.orderLong}</button><a class="btn ghost" href={ROUTES.weddingForm[lang]}>{lang === "fr" ? "Gâteaux de mariage" : "Wedding cakes"}</a></div>
+    </div>
+  </section>
+</Base>

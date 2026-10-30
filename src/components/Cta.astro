@@ -1,0 +1,22 @@
+---
+import { SITE, ROUTES, T, type Lang } from "../data/site";
+interface Props { lang: Lang; kind: "custom" | "wedding" | "visit"; title?: [string, string]; text?: string }
+const { lang, kind, title, text } = Astro.props;
+const t = T[lang];
+const D = {
+  custom: { fr: [["Votre gâteau,", "en deux minutes"], "Notre assistant vous guide : l'occasion, la date, les portions, la saveur. L'équipe vous rappelle dans 1 à 2 jours ouvrables."], en: [["Your cake,", "in two minutes"], "Our assistant guides you: occasion, date, servings, flavour. The team calls you back within 1–2 business days."] },
+  wedding: { fr: [["Parlons de votre", "grand jour"], "Une consultation gratuite de 30 à 60 minutes avec le propriétaire, à la pâtisserie ou par téléphone. Au moins 4 semaines avant le mariage."], en: [["Let's talk about", "your big day"], "A free 30–60 minute consultation with the owner, at the bakery or by phone. At least 4 weeks before the wedding."] },
+  visit: { fr: [["Passez au", "comptoir"], "Ouvert tous les jours. Pas de commande en ligne pour les pâtisseries et le catalogue : venez choisir sur place."], en: [["Drop by", "the counter"], "Open every day. Pastries and catalogue cakes aren't ordered online: come choose in person."] },
+}[kind][lang] as [[string, string], string];
+const [h, p] = [title ?? D[0], text ?? D[1]];
+---
+<section class="cta-band">
+  <div class="wrap">
+    <div><h2>{h[0]} <em>{h[1]}</em></h2><p>{p}</p></div>
+    <div class="btns">
+      {kind === "custom" && <><button class="btn" type="button" data-chat>{t.orderLong}</button><a class="btn ghost" href={`tel:${SITE.phoneIntl}`}>{t.call} {SITE.phone}</a></>}
+      {kind === "wedding" && <><a class="btn" href={ROUTES.weddingForm[lang]}>{lang === "fr" ? "Réserver ma consultation gratuite" : "Book my free consultation"}</a><a class="btn ghost" href={`tel:${SITE.phoneIntl}`}>{t.call} {SITE.phone}</a></>}
+      {kind === "visit" && <><a class="btn" href={SITE.maps} rel="noopener">{t.directions}</a><a class="btn ghost" href={`tel:${SITE.phoneIntl}`}>{t.call} {SITE.phone}</a></>}
+    </div>
+  </div>
+</section>

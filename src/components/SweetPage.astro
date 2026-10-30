@@ -1,0 +1,83 @@
+---
+import Base from "./../layouts/Base.astro";
+import PageHero from "./PageHero.astro";
+import Gallery from "./Gallery.astro";
+import Reviews from "./Reviews.astro";
+import Faq from "./Faq.astro";
+import Cta from "./Cta.astro";
+import Related from "./Related.astro";
+import LocalBlock from "./LocalBlock.astro";
+import { ALL } from "../lib/photos";
+import { SITE, ROUTES, type Lang } from "../data/site";
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const L = (fr: string, en: string) => (lang === "fr" ? fr : en);
+const cover = "table-sucree/009";
+const photos = ALL.filter((p) => p.key.startsWith("table-sucree/") || p.key === "mariage/042" || p.key === "mariage/044").sort((a, b) => (a.key === cover ? -1 : b.key === cover ? 1 : a.key.localeCompare(b.key)));
+const minis = lang === "fr" ? [
+  ["Mini gâteau au fromage aux fraises", "Le favori de nos clients, en bouchée."], ["Mini kok", "Le petit chou grec à la crème et au chocolat."], ["Mini tartelettes", "Fruits, crème, chocolat."],
+  ["Mini éclairs", "Classiques, glaçage brillant."], ["Mini choux à la crème", "Légers, à croquer en une bouchée."], ["Mini mousses", "Chocolat, fruits, en verrine ou en cœur."],
+  ["Mini cannolis", "Coquille croustillante, crème onctueuse."], ["Mini bougatsa", "Crème à la semoule et filo."], ["Mini ekmek", "Kataïfi, crème et chantilly."],
+  ["Mini tiramisu", "Café, mascarpone, cacao."], ["Mini diples", "Pâte frite au miel et aux noix."], ["Rouleaux de baklava (saragli)", "Filo, noix, sirop."],
+  ["Biscuits décorés", "À vos couleurs, avec vos initiales."], ["Cake pops et cakesicles", "Sur bâtonnet, assortis au thème."], ["Beignes", "Pour un mur ou une tour de beignes."],
+] : [
+  ["Mini strawberry cheesecake", "Our customers' favourite, bite-sized."], ["Mini kok", "The little Greek cream puff with chocolate."], ["Mini tarts", "Fruit, cream, chocolate."],
+  ["Mini éclairs", "Classic, with a glossy glaze."], ["Mini cream puffs", "Light, one bite each."], ["Mini mousses", "Chocolate or fruit, in cups or hearts."],
+  ["Mini cannoli", "Crisp shell, smooth cream."], ["Mini bougatsa", "Semolina custard and phyllo."], ["Mini ekmek", "Kataifi, custard and whipped cream."],
+  ["Mini tiramisu", "Coffee, mascarpone, cocoa."], ["Mini diples", "Fried dough with honey and walnuts."], ["Baklava rolls (saragli)", "Phyllo, walnuts, syrup."],
+  ["Decorated cookies", "In your colours, with your initials."], ["Cake pops and cakesicles", "On a stick, matched to your theme."], ["Donuts", "For a donut wall or tower."],
+];
+const shows = lang === "fr" ? [["Tour de beignes", "Une colonne de beignes glacés à vos couleurs."], ["Tour de macarons", "Des dizaines de macarons empilés en cône."], ["Croquembouche", "Choux caramélisés montés en pièce montée."]]
+  : [["Donut tower", "A column of glazed donuts in your colours."], ["Macaron tower", "Dozens of macarons stacked into a cone."], ["Croquembouche", "Caramelised cream puffs built into a tower."]];
+const faq = lang === "fr" ? [
+  { q: "Comment commander une table sucrée?", a: "La table sucrée se planifie avec le propriétaire lors de la consultation mariage, avec le gâteau. Cochez « table sucrée » dans le formulaire de consultation." },
+  { q: "Combien coûte une table sucrée?", a: "Ça dépend du nombre d'invités et des pièces choisies. Le prix est établi avec vous à la consultation; on ne donne pas de prix en ligne." },
+  { q: "Est-ce possible sans gâteau de mariage?", a: "Oui. Mentionnez-le à notre assistant en commandant un gâteau sur mesure, et l'équipe en discute avec vous à l'appel de suivi." },
+  { q: "Livrez-vous et installez-vous la table?", a: "On livre à Laval, à Montréal et dans les environs. Les frais dépendent de la distance; l'installation se discute à la consultation." },
+] : [
+  { q: "How do I order a sweet table?", a: "Sweet tables are planned with the owner at the wedding consultation, together with the cake. Tick \"sweet table\" on the consultation form." },
+  { q: "How much does a sweet table cost?", a: "It depends on your guest count and the pieces you choose. The price is set with you at the consultation; we don't quote prices online." },
+  { q: "Can I get one without a wedding cake?", a: "Yes. Mention it to our assistant when you order a custom cake, and the team will discuss it on your follow-up call." },
+  { q: "Do you deliver and set up the table?", a: "We deliver across Laval, Montréal and nearby. Fees depend on distance; setup is discussed at the consultation." },
+];
+const filters = lang === "fr" ? [{ tag: "table", label: "Tables complètes" }, { tag: "tower", label: "Tours et croquembouches" }, { tag: "minis", label: "Minis" }, { tag: "cookies", label: "Biscuits et petits gâteaux" }]
+  : [{ tag: "table", label: "Full tables" }, { tag: "tower", label: "Towers and croquembouche" }, { tag: "minis", label: "Minis" }, { tag: "cookies", label: "Cookies and cupcakes" }];
+const schema = [
+  { "@context": "https://schema.org", "@type": "Service", name: L("Tables sucrées de mariage", "Wedding sweet tables"), url: new URL(ROUTES.sweet[lang], SITE.url).href, provider: { "@id": `${SITE.url}/#bakery` }, areaServed: [{ "@type": "City", name: "Laval" }, { "@type": "City", name: "Montréal" }] },
+  { "@context": "https://schema.org", "@type": "FAQPage", mainEntity: faq.map((f) => ({ "@type": "Question", name: f.q, acceptedAnswer: { "@type": "Answer", text: f.a } })) },
+];
+---
+<Base lang={lang} route="sweet" title={L("Table sucrée de mariage à Laval | Pâtisserie Ambrosia", "Wedding Sweet Tables in Laval | Pâtisserie Ambrosia")}
+  description={L("Tables sucrées de mariage à Laval : mini cheesecakes, éclairs, cannolis, bougatsa, tours de macarons et de beignes, croquembouche.",
+    "Wedding sweet tables in Laval: mini cheesecakes, éclairs, cannoli, bougatsa, macaron and donut towers, croquembouche. Planned at your free consultation.")}
+  crumbs={[{ name: L("Gâteaux de mariage", "Wedding cakes"), route: "wedding" }, { name: L("Tables sucrées", "Sweet tables") }]} schema={schema}>
+  <PageHero lang={lang} photo={cover} eyebrow={L("Tables sucrées · mariages et grandes fêtes", "Sweet tables · weddings and big parties")}
+    h1={L("Tables sucrées de mariage", "Wedding sweet tables")} h1em={L("à Laval", "in Laval")}
+    intro={L("Une table sucrée, c'est le dessert de toute la soirée, à côté du gâteau : des minis grecques et européennes, une tour de macarons, un croquembouche. On la compose avec vous, à vos couleurs.",
+      "A sweet table is the dessert for the whole evening, next to the cake: Greek and European minis, a macaron tower, a croquembouche. We put it together with you, in your colours.")}
+    facts={lang === "fr" ? ["15 minis maison", "3 pièces montées", "Planifiée à la consultation"] : ["15 house minis", "3 showpieces", "Planned at the consultation"]}>
+    <a class="btn" href={ROUTES.weddingForm[lang]}>{L("Réserver ma consultation gratuite", "Book my free consultation")}</a>
+    <a class="btn outline" href="#portfolio">{L("Voir les tables", "See the tables")}</a>
+  </PageHero>
+  <section class="band paper">
+    <div class="wrap">
+      <div class="sec-head"><span class="label">{L("Le menu des minis", "The minis menu")}</span><h2>{L("Quinze bouchées", "Fifteen bites")} <em>{L("maison", "made in-house")}</em></h2><p>{L("On choisit ensemble les pièces et les quantités selon votre nombre d'invités.", "We choose the pieces and quantities together based on your guest count.")}</p></div>
+      <ul class="list2">{minis.map(([a, b]) => <li><b>{a}</b><span>{b}</span></li>)}</ul>
+    </div>
+  </section>
+  <section class="band">
+    <div class="wrap">
+      <div class="sec-head"><span class="label">{L("Les pièces montées", "Showpieces")}</span><h2>{L("Le clou", "The centrepiece")} <em>{L("de la table", "of the table")}</em></h2></div>
+      <div class="cards3">{shows.map(([a, b]) => <div class="card rv"><h3>{a}</h3><p>{b}</p></div>)}</div>
+    </div>
+  </section>
+  <Gallery id="portfolio" band="white" photos={photos} lang={lang} filters={filters} heading={lang === "fr" ? ["Nos", "tables sucrées"] : ["Our", "sweet tables"]} custom />
+  <Reviews lang={lang} tag="sweet" n={3} />
+  <section class="band"><div class="wrap"><div class="sec-head"><span class="label">{L("Questions fréquentes", "Questions")}</span><h2>{L("Bon à", "Good to")} <em>{L("savoir", "know")}</em></h2></div><Faq items={faq} /></div></section>
+  <Cta lang={lang} kind="wedding" />
+  <Related lang={lang} items={[
+    { k: "wedding", photo: "mariage/036", line: { fr: "Consultation gratuite avec le propriétaire", en: "Free consultation with the owner" } },
+    { k: "pastries", photo: "patisseries-grecques/016", line: { fr: "Baklava et galaktoboureko au comptoir", en: "Baklava and galaktoboureko at the counter" } },
+    { k: "delivery", photo: "table-sucree/028", line: { fr: "Livré à Laval et à Montréal", en: "Delivered across Laval and Montréal" } },
+  ]} />
+</Base>

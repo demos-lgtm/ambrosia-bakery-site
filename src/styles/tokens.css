@@ -1,0 +1,96 @@
+/* ==========================================================================
+   Pâtisserie Ambrosia — design tokens (single source of truth)
+   Colours are measured from the logo files (ambrosia-deploy1/logos).
+   Do not add colours outside this file. See DESIGN.md.
+   ========================================================================== */
+
+:root {
+  color-scheme: light;
+
+  /* ---- Brand colour (from the logo) ---- */
+  --burgundy: #870900;          /* logo wordmark, ring. Primary brand colour */
+  --burgundy-deep: #5E0402;     /* hover, dark bands, footer */
+  --burgundy-ink: #3D0705;      /* body text on cream (16:1) */
+  --gold: #E5C376;              /* logo wheat in wordmark. Decoration; text only on burgundy (6:1) */
+  --gold-light: #F2DAA2;        /* top-right of the wheat sheen */
+  --gold-dark: #C69A36;         /* bottom-left of the wheat sheen */
+  --gold-text: #7A5A12;         /* gold-family text on cream (6:1) */
+  --logo-black: #1A0E0C;        /* "PÂTISSERIE | BOULANGERIE" tagline */
+
+  /* ---- Neutrals (warm, biased toward the burgundy) ---- */
+  --cream: #FBF8F3;             /* page */
+  --paper: #F6EFE5;             /* alternating sections, cards */
+  --paper-deep: #EFE4D6;        /* pressed states, image placeholders */
+  --rule: #E5D8C9;              /* hairlines */
+  --ink-mid: #5C4440;           /* secondary text (8.4:1) */
+  --ink-soft: #7A645C;          /* captions, meta (5.2:1) */
+  --white: #FFFFFF;
+
+  /* ---- Celebration accent (birthday / baby pages only) ---- */
+  --blush: #F3E1DB;
+  --blush-deep: #E9C9BF;
+
+  /* ---- Functional ---- */
+  --focus: #870900;
+  --error: #B3261E;
+  --success: #2F6B3A;
+
+  /* ---- Gradients (the logo's gold) ---- */
+  --gold-foil: linear-gradient(45deg, #C69A36 0%, #E2C070 55%, #F2DAA2 100%);
+  --gold-pin: linear-gradient(90deg, #E9CC85 0%, #D3AA44 22%, #F6E6BC 50%, #D6AF4C 78%, #CC9E38 100%);
+  --overlay-burgundy: rgb(94 4 2 / 0.78);   /* over Pika atmosphere media behind text */
+  --overlay-scrim: linear-gradient(180deg, rgb(26 14 12 / 0) 40%, rgb(26 14 12 / 0.55) 100%);
+
+  /* ---- Type families ---- */
+  --font-display: "Bodoni Moda", "GFS Didot", "Didot", "Bodoni 72", "Times New Roman", serif;
+  --font-text: "Jost", "Didact Gothic", "Futura", "Century Gothic", "Helvetica Neue", Arial, sans-serif;
+
+  /* ---- Type scale (fluid, 375px → 1440px) ---- */
+  --fs-hero: clamp(2.5rem, 1.55rem + 4.2vw, 5.25rem);
+  --fs-h1: clamp(2.125rem, 1.6rem + 2.4vw, 3.75rem);
+  --fs-h2: clamp(1.75rem, 1.4rem + 1.5vw, 2.75rem);
+  --fs-h3: clamp(1.3rem, 1.15rem + 0.6vw, 1.625rem);
+  --fs-lead: clamp(1.125rem, 1.05rem + 0.35vw, 1.3125rem);
+  --fs-body: 1.0625rem;         /* 17px */
+  --fs-small: 0.9375rem;
+  --fs-caption: 0.8125rem;
+  --fs-label: 0.75rem;          /* uppercase, tracked */
+
+  --lh-display: 1.05;
+  --lh-heading: 1.15;
+  --lh-body: 1.6;
+  --tracking-label: 0.22em;     /* echoes the logo tagline */
+  --tracking-display: -0.01em;
+  --measure: 65ch;
+
+  /* ---- Space (8px rhythm) ---- */
+  --s-1: 0.25rem;  --s-2: 0.5rem;  --s-3: 0.75rem; --s-4: 1rem;
+  --s-5: 1.5rem;   --s-6: 2rem;    --s-7: 3rem;    --s-8: 4rem;
+  --s-9: 6rem;     --s-10: 8rem;
+  --section-y: clamp(4rem, 2.5rem + 6vw, 8rem);
+  --gutter: max(16px, env(safe-area-inset-left, 0px));
+  --content-max: 1240px;
+
+  /* ---- Shape ---- */
+  --radius: 2px;                /* crisp, like the logo. The seal circle is the only round motif */
+  --radius-pill: 999px;         /* chips only */
+  --shadow-card: 0 1px 2px rgb(61 7 5 / 0.06), 0 8px 24px -12px rgb(61 7 5 / 0.18);
+  --shadow-lift: 0 2px 4px rgb(61 7 5 / 0.08), 0 18px 40px -16px rgb(61 7 5 / 0.28);
+
+  /* ---- Motion ---- */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);   /* the friendly little bounce */
+  --dur-fast: 160ms;
+  --dur-base: 320ms;
+  --dur-slow: 700ms;
+
+  /* ---- Layers ---- */
+  --z-header: 50;
+  --z-actionbar: 60;
+  --z-overlay: 80;
+  --z-chat: 90;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root { --dur-fast: 0ms; --dur-base: 0ms; --dur-slow: 0ms; }
+}

@@ -1,0 +1,143 @@
+---
+import { Picture, getImage } from "astro:assets";
+import type { Photo } from "../lib/photos";
+import { T, type Lang } from "../data/site";
+
+interface Props { photos: Photo[]; lang: Lang; filters: { tag: string; label: string }[]; id: string; heading: [string, string]; band?: string; intro?: string; custom?: boolean }
+const { photos, lang, filters, id, heading, band = "", intro, custom = false } = Astro.props;
+import { ROUTES } from "../data/site";
+const isWed = (k: string) => k.startsWith("mariage/") || k.startsWith("table-sucree/");
+const t = T[lang];
+const PREVIEW = process.env.PREVIEW === "1";
+const formats = PREVIEW ? ["webp"] : ["avif", "webp"];
+const big = await Promise.all(photos.map((p) => getImage({ src: p.img, width: PREVIEW ? 900 : 1400, format: "webp", quality: PREVIEW ? 70 : 78 })));
+const counts = Object.fromEntries(filters.map((f) => [f.tag, photos.filter((p) => p.tags.includes(f.tag)).length]));
+---
+<section class={`band ${band}`} id={id}>
+  <div class="wrap">
+    <div class="gal-head">
+      <div class="sec-head" style="margin:0">
+        <span class="label">{lang === "fr" ? "Portfolio" : "Portfolio"}</span>
+        <h2>{heading[0]} <em>{heading[1]}</em></h2>
+      </div>
+      <span class="gal-count" aria-live="polite" data-count>{photos.length} {t.photos}</span>
+    </div>
+    {intro && <p class="muted" style="margin:-8px 0 20px;max-width:60ch">{intro}</p>}
+    {custom && (
+      <aside class="custom-note">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l2.2 5.2L20 9l-4.3 3.8L17 18.5 12 15.6 7 18.5l1.3-5.7L4 9l5.8-.8z"/></svg>
+        <p>{lang === "fr"
+          ? <><b>Tout est fait sur mesure.</b> Ces gâteaux sont des créations uniques, faites pour nos clients : ce ne sont pas des modèles à choisir. Inspirez-vous-en, ou apportez votre propre idée : une photo Pinterest ou Instagram, un thème, un dessin, quelques couleurs. On crée le vôtre.</>
+          : <><b>Everything is made to order.</b> These are one-of-a-kind cakes we made for our customers, not models to pick from. Use them for inspiration, or bring your own idea: a Pinterest or Instagram photo, a theme, a sketch, a few colours. We'll create yours.</>}</p>
+      </aside>
+    )}
+    {filters.length > 0 && (
+      <div class="chips" role="group" aria-label={lang === "fr" ? "Filtrer les photos" : "Filter photos"} style="margin-bottom:22px">
+        <button class="chip" type="button" data-filter="all" aria-pressed="true">{t.all} <small>{photos.length}</small></button>
+        {filters.filter((f) => counts[f.tag] > 0).map((f) => <button class="chip" type="button" data-filter={f.tag} aria-pressed="false">{f.label} <small>{counts[f.tag]}</small></button>)}
+      </div>
+    )}
+    <div class="grid" data-gallery>
+      {photos.map((p, i) => (
+        <button class="tile" type="button" data-i={i} data-tags={p.tags.join(" ")} data-src={big[i].src} data-cap={p[lang]} data-ref={p.ref} data-wed={isWed(p.key) ? "1" : undefined} aria-label={`${p[lang]}. ${lang === "fr" ? "Agrandir" : "Enlarge"}`}>
+          {PREVIEW ? <img src={big[i].src} alt={p[lang]} width={big[i].attributes.width} height={big[i].attributes.height} loading={i < 4 ? "eager" : "lazy"} decoding="async" /> : <Picture fallbackFormat={process.env.PREVIEW === "1" ? "webp" : undefined} src={p.img} alt={p[lang]} formats={formats} widths={PREVIEW ? [480] : [360, 720]} sizes="(max-width: 640px) 50vw, (max-width: 1100px) 33vw, 300px" loading={i < 4 ? "eager" : "lazy"} decoding="async" fetchpriority={i < 2 ? "high" : "auto"} quality={70}  />}
+          <span class="cap" aria-hidden="true">{p[lang]}</span>
+        </button>
+      ))}
+    </div>
+  </div>
+</section>
+
+<dialog class="lb" data-lb aria-label={lang === "fr" ? "Photo agrandie" : "Enlarged photo"}>
+  <div class="lb-top"><span data-lb-pos></span><button class="lb-btn" type="button" data-lb-close aria-label={t.close}>×</button></div>
+  <div class="lb-stage" data-lb-stage>
+    <img data-lb-img alt="" />
+    <button class="lb-btn lb-prev" type="button" data-lb-prev aria-label={t.prev}>←</button>
+    <button class="lb-btn lb-next" type="button" data-lb-next aria-label={t.next}>→</button>
+  </div>
+  <div class="lb-foot">
+    <p class="lb-cap" data-lb-cap></p>
+    <button class="btn" type="button" data-chat data-lb-order>{t.likeThis}</button>
+    <a class="btn" href={ROUTES.weddingForm[lang]} data-lb-wed hidden>{lang === "fr" ? "Réserver ma consultation mariage" : "Book my wedding consultation"}</a>
+  </div>
+</dialog>
+
+<script>
+  document.querySelectorAll<HTMLElement>("[data-gallery]").forEach((grid) => {
+    const section = grid.closest("section")!;
+    const lb = section.nextElementSibling as HTMLDialogElement;
+    const tiles = [...grid.querySelectorAll<HTMLButtonElement>(".tile")];
+    const chips = [...section.querySelectorAll<HTMLButtonElement>("[data-filter]")];
+    const count = section.querySelector<HTMLElement>("[data-count]")!;
+    const word = count.textContent!.replace(/^\d+\s*/, "");
+    const lang = document.body.dataset.lang;
+
+    // Row-order masonry: CSS columns fill top-to-bottom, which pushed the best (first) photos down the page.
+    // We deal tiles into columns left-to-right, always into the shortest column, so photo #1, #2, #3, #4 read across the top.
+    let cols = 0;
+    const colCount = () => { const w = grid.clientWidth; return w <= 640 - 32 ? 2 : Math.max(1, Math.min(4, Math.floor((w + 14) / 254))); };
+    function layout(force = false) {
+      const n = colCount(); if (!force && n === cols) return; cols = n;
+      const boxes = Array.from({ length: n }, () => { const d = document.createElement("div"); d.className = "gcol"; return d; });
+      const h = new Array(n).fill(0);
+      tiles.forEach((t) => {
+        if (t.hidden) { boxes[0].append(t); return; }
+        const im = t.querySelector("img"); const r = (+(im?.getAttribute("height") || 4)) / (+(im?.getAttribute("width") || 3));
+        const k = h.indexOf(Math.min(...h)); boxes[k].append(t); h[k] += r;
+      });
+      grid.replaceChildren(...boxes); grid.classList.add("masonry");
+    }
+    layout(true);
+    let rz = 0; addEventListener("resize", () => { cancelAnimationFrame(rz); rz = requestAnimationFrame(() => layout()); });
+
+    chips.forEach((c) => c.addEventListener("click", () => {
+      const f = c.dataset.filter!;
+      chips.forEach((o) => o.setAttribute("aria-pressed", String(o === c)));
+      let n = 0;
+      const apply = () => { tiles.forEach((t) => { const show = f === "all" || t.dataset.tags!.split(" ").includes(f); t.hidden = !show; if (show) n++; }); layout(true); };
+      const vt = (document as any).startViewTransition;
+      if (vt && !matchMedia("(prefers-reduced-motion: reduce)").matches) vt.call(document, apply); else apply();
+      requestAnimationFrame(() => { count.textContent = `${tiles.filter((t) => !t.hidden).length} ${word}`; });
+      const url = new URL(location.href); url.searchParams.set("f", f); if (f === "all") url.searchParams.delete("f"); history.replaceState(null, "", url);
+    }));
+    const sp = new URL(location.href).searchParams; const pre = sp.get("f") || sp.get("occasion");
+    if (pre) chips.find((c) => c.dataset.filter === pre)?.click();
+
+    const img = lb.querySelector<HTMLImageElement>("[data-lb-img]")!;
+    const cap = lb.querySelector<HTMLElement>("[data-lb-cap]")!;
+    const pos = lb.querySelector<HTMLElement>("[data-lb-pos]")!;
+    const order = lb.querySelector<HTMLButtonElement>("[data-lb-order]")!;
+    const wedLink = lb.querySelector<HTMLAnchorElement>("[data-lb-wed]")!;
+    let list: HTMLButtonElement[] = []; let i = 0;
+    function show(k: number) {
+      i = (k + list.length) % list.length;
+      const t = list[i];
+      img.style.opacity = "0";
+      img.onload = () => (img.style.opacity = "1");
+      img.src = t.dataset.src!; img.alt = t.dataset.cap!;
+      const refWord = lang === "fr" ? "Réf." : "Ref.";
+      cap.innerHTML = ""; cap.append(t.dataset.cap!);
+      const s = document.createElement("small"); s.textContent = `${refWord} ${t.dataset.ref}`; cap.append(s);
+      pos.textContent = `${i + 1} / ${list.length}`;
+      order.dataset.ref = `${refWord} ${t.dataset.ref} · ${t.dataset.cap}`;
+      const wed = t.dataset.wed === "1"; order.hidden = wed; wedLink.hidden = !wed;
+      if (wed) wedLink.href = wedLink.href.split("?")[0] + "?ref=" + encodeURIComponent(t.dataset.ref!);
+      const n = list[(i + 1) % list.length]; if (n) { const pre = new Image(); pre.src = n.dataset.src!; }
+    }
+    tiles.forEach((t) => t.addEventListener("click", () => {
+      list = tiles.filter((x) => !x.hidden);
+      show(list.indexOf(t));
+      lb.showModal();
+    }));
+    lb.querySelector("[data-lb-prev]")!.addEventListener("click", () => show(i - 1));
+    lb.querySelector("[data-lb-next]")!.addEventListener("click", () => show(i + 1));
+    lb.querySelector("[data-lb-close]")!.addEventListener("click", () => lb.close());
+    order.addEventListener("click", () => lb.close());
+    lb.addEventListener("keydown", (e) => { if (e.key === "ArrowRight") show(i + 1); if (e.key === "ArrowLeft") show(i - 1); });
+    lb.addEventListener("click", (e) => { if (e.target === lb) lb.close(); });
+    let x0: number | null = null;
+    const stage = lb.querySelector<HTMLElement>("[data-lb-stage]")!;
+    stage.addEventListener("pointerdown", (e) => (x0 = e.clientX));
+    stage.addEventListener("pointerup", (e) => { if (x0 === null) return; const dx = e.clientX - x0; if (Math.abs(dx) > 50) show(i + (dx < 0 ? 1 : -1)); x0 = null; });
+  });
+</script>
