@@ -66,6 +66,8 @@ const DRAWER: [string, string[]][] = [
 <html lang={htmlLang ?? (lang === "fr" ? "fr-CA" : "en-CA")}>
 <head>
   <meta charset="utf-8">
+  <script is:inline>(function(){try{var ua=navigator.userAgent||"";if(/bot|crawl|spider|slurp|mediapartners|facebookexternalhit|embedly|quora|pinterest|whatsapp|telegrambot|bingpreview|google-inspectiontool|chrome-lighthouse|headlesschrome/i.test(ua))return;var pref=null;try{pref=localStorage.getItem("amb-lang")}catch(e){}if(location.pathname==="/"){if(pref==="fr")return;if(pref==="en"){location.replace("/en/");return}var l=((navigator.languages&&navigator.languages[0])||navigator.language||"fr").toLowerCase();if(l.indexOf("en")===0){location.replace("/en/")}}}catch(e){}})();</script>
+  <script is:inline>document.addEventListener("click",function(e){var a=e.target.closest&&e.target.closest('a[hreflang="fr"],a[hreflang="en"]');if(a){try{localStorage.setItem("amb-lang",a.getAttribute("hreflang"))}catch(err){}}},true);</script>
   <script is:inline>document.documentElement.classList.add("js");if(!location.hash&&"scrollRestoration"in history)history.scrollRestoration="manual";</script>
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>{title}</title>
