@@ -142,7 +142,7 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .lb-btn { width: 48px; height: 48px; display: grid; place-items: center; border-radius: 50%; border: 1px solid rgb(242 218 162 / .35); background: rgb(26 14 12 / .4); color: var(--cream); font-size: 22px; cursor: pointer; }
 .lb-btn:hover { border-color: var(--gold); }
 .lb-stage { position: relative; display: grid; place-items: center; overflow: hidden; touch-action: pan-y; }
-.lb-stage img { max-width: min(94vw, 1100px); max-height: 100%; width: auto; height: auto; object-fit: contain; border-radius: var(--radius); user-select: none; -webkit-user-drag: none; transition: opacity 220ms; }
+.lb-stage img { max-width: min(94vw, 1100px); max-height: calc(100dvh - 160px); width: auto; height: auto; object-fit: contain; border-radius: var(--radius); user-select: none; -webkit-user-drag: none; transition: opacity 220ms; }
 .lb-prev, .lb-next { position: absolute; top: 50%; transform: translateY(-50%); }
 .lb-prev { left: max(10px, env(safe-area-inset-left, 0px)); }
 .lb-next { right: max(10px, env(safe-area-inset-right, 0px)); }

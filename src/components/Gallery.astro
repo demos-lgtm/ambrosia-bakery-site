@@ -115,13 +115,11 @@ const counts = Object.fromEntries(filters.map((f) => [f.tag, photos.filter((p) =
       img.style.opacity = "0";
       img.onload = () => (img.style.opacity = "1");
       img.src = t.dataset.src!; img.alt = t.dataset.cap!;
-      const refWord = lang === "fr" ? "Réf." : "Ref.";
       cap.innerHTML = ""; cap.append(t.dataset.cap!);
-      const s = document.createElement("small"); s.textContent = `${refWord} ${t.dataset.ref}`; cap.append(s);
       pos.textContent = `${i + 1} / ${list.length}`;
-      order.dataset.ref = `${refWord} ${t.dataset.ref} · ${t.dataset.cap}`;
+      order.dataset.ref = t.dataset.cap!;
       const wed = t.dataset.wed === "1"; order.hidden = wed; wedLink.hidden = !wed;
-      if (wed) wedLink.href = wedLink.href.split("?")[0] + "?ref=" + encodeURIComponent(t.dataset.ref!);
+      if (wed) wedLink.href = wedLink.href.split("?")[0] + "?ref=" + encodeURIComponent(t.dataset.cap!);
       const n = list[(i + 1) % list.length]; if (n) { const pre = new Image(); pre.src = n.dataset.src!; }
     }
     tiles.forEach((t) => t.addEventListener("click", () => {
