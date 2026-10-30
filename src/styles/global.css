@@ -322,6 +322,25 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .hero-home .lead { margin-top: 18px; max-width: 44ch; }
 .hero-home .ctas { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 26px; }
 .hero-home .proof { margin-top: 28px; }
+
+/* Desktop homepage hero: deep burgundy band so the cake wall reads against it.
+   Desktop-only by construction: .hero-home.has-mhero is display:none below 861px. */
+.hero-home { background: var(--burgundy-deep); }
+.hero-home .label { color: var(--gold); }
+.hero-home h1 { color: var(--cream); }
+.hero-home h1 em { color: var(--gold-light); }
+.hero-home .brandline { color: var(--gold-light); }
+.hero-home .lead { color: #E7D4CD; }
+.hero-home .btn { background: var(--cream); border-color: var(--cream); color: var(--burgundy); }
+.hero-home .btn:hover { background: var(--gold-light); border-color: var(--gold-light); color: var(--burgundy); }
+.hero-home .btn.outline { background: transparent; border-color: rgb(251 248 243 / .55); color: var(--cream); }
+.hero-home .btn.outline:hover { background: var(--cream); border-color: var(--cream); color: var(--burgundy); }
+.hero-home .badge { border-color: var(--gold); }
+.hero-home .badge::before { border-color: rgb(229 195 118 / .45); }
+.hero-home .badge b { color: var(--cream); }
+.hero-home .badge small { color: var(--gold); }
+.hero-home .proof p { color: #E7D4CD; }
+.hero-home .proof strong { color: var(--cream); }
 .wall { position: relative; height: min(720px, calc(100svh - 120px)); display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; overflow: hidden;
   -webkit-mask-image: linear-gradient(180deg, transparent 0, #000 12%, #000 88%, transparent 100%); mask-image: linear-gradient(180deg, transparent 0, #000 12%, #000 88%, transparent 100%); }
 .wall .col { display: flex; flex-direction: column; gap: 12px; animation: wallup 60s linear infinite; }

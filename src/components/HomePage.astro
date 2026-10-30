@@ -9,6 +9,7 @@ import { SITE, ROUTES, T, COVERS, type Lang } from "../data/site";
 import { OCCASIONS } from "../data/occasions";
 import sealUrl from "../assets/brand/ambrosia-seal.svg?url";
 import wheatCream from "../assets/brand/ambrosia-wheat-cream.svg?url";
+import wheatGold from "../assets/brand/ambrosia-wheat.svg?url";
 import wheat from "../assets/brand/ambrosia-wheat.svg?url";
 
 interface Props { lang: Lang }
@@ -88,7 +89,7 @@ const desc = L("Pâtisserie familiale à Laval depuis 1995 : gâteaux de mariage
         <p class="lead">{L("Mariages, anniversaires, baptêmes, finissants. Depuis trois décennies, les familles de Laval fêtent avec nos gâteaux, et repartent avec une boîte de baklava.",
           "Weddings, birthdays, baptisms, graduations. For three decades, Laval families have celebrated with our cakes, and left with a box of baklava.")}</p>
         <div class="ctas">
-          <a class="btn" href={ROUTES.custom[lang]}>{L("Gâteaux de célébration sur mesure", "Custom celebration cakes")} <img class="w" src={wheatCream} alt="" width="15" height="19"></a>
+          <a class="btn" href={ROUTES.custom[lang]}>{L("Gâteaux de célébration sur mesure", "Custom celebration cakes")} <img class="w" src={wheatGold} alt="" width="15" height="19"></a>
           <a class="btn outline" href={ROUTES.wedding[lang]}>{L("Gâteaux de mariage", "Wedding cakes")}</a>
         </div>
         <a class="proof" href={ROUTES.reviews[lang]}>
