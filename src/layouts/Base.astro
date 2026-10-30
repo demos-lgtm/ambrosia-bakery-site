@@ -57,6 +57,15 @@ const parentCrumb = [...crumbs].slice(0, -1).reverse().find((c) => c.route);
 const up = parentCrumb ? { name: parentCrumb.name, href: link(parentCrumb.route!) } : { name: t.home, href: link("home") };
 const ld = [bakery, ...(breadcrumb ? [breadcrumb] : []), ...schema];
 const GROUP: Record<string, string[]> = { custom: ["birthday","kids","baptism","babyshower","graduation","engagement","catalogue"], wedding: ["weddingForm","sweet"], pastries: ["cheesecake","menu"], visit: ["delivery","faq"] };
+// Quick-action bar: the homepage and the neutral pages offer the choice of path.
+// Once you are inside a section, the category buttons would either point at the
+// page you are on or cross-sell the other occasion, so they give way to that
+// section's own next step. Call stays on every page.
+const sectionOf = (head: string) => route === head || (GROUP[head] ?? []).includes(route);
+const barMode = route === "weddingForm" ? "call"            // already on the booking form: only Call is still useful
+  : sectionOf("wedding") ? "wedding"
+  : sectionOf("custom") ? "celebration"
+  : "choose";
 const isActive = (k: string) => route === k || (GROUP[k] ?? []).includes(route);
 const DRAWER: [string, string[]][] = [
   ["wedding", ["wedding","weddingForm","sweet"]],
@@ -159,9 +168,11 @@ const DRAWER: [string, string[]][] = [
     </div>
   </footer>
 
-  <nav class="actionbar" aria-label={lang === "fr" ? "Actions rapides" : "Quick actions"}>
-    <a href={link("weddingForm")}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M6 21h12M7 21v-6h10v6M8.5 15v-4h7v4M10 11V7.5h4V11M12 7.5V4"/></svg>{lang === "fr" ? "Mariage" : "Wedding"}</a>
-    <a class="main" href={link("custom")}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M4 18h16M6 18v-5h12v5M8 13V9h8v4M12 9V5"/></svg>{lang === "fr" ? "Célébration" : "Celebration"}</a>
+  <nav class="actionbar" data-mode={barMode} aria-label={lang === "fr" ? "Actions rapides" : "Quick actions"}>
+    {barMode === "choose" && <a href={link("weddingForm")}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M6 21h12M7 21v-6h10v6M8.5 15v-4h7v4M10 11V7.5h4V11M12 7.5V4"/></svg>{lang === "fr" ? "Mariage" : "Wedding"}</a>}
+    {barMode === "choose" && <a class="main" href={link("custom")}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M4 18h16M6 18v-5h12v5M8 13V9h8v4M12 9V5"/></svg>{lang === "fr" ? "Célébration" : "Celebration"}</a>}
+    {barMode === "wedding" && <a class="main" href={link("weddingForm")}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M6 21h12M7 21v-6h10v6M8.5 15v-4h7v4M10 11V7.5h4V11M12 7.5V4"/></svg>Consultation</a>}
+    {barMode === "celebration" && <button class="main" type="button" data-chat><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M4 18h16M6 18v-5h12v5M8 13V9h8v4M12 9V5"/></svg>{lang === "fr" ? "Commander" : "Order"}</button>}
     <a href={`tel:${SITE.phoneIntl}`}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"/></svg>{t.call}</a>
   </nav>
 

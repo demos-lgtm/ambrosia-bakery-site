@@ -263,6 +263,9 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
   .actionbar { display: grid; grid-template-columns: 1fr 1.4fr 1fr; position: fixed; left: 0; right: 0; bottom: 0; z-index: var(--z-actionbar); background: var(--cream); border-top: 1px solid var(--rule); padding: 7px max(10px, env(safe-area-inset-right, 0px)) calc(7px + env(safe-area-inset-bottom, 0px)) max(10px, env(safe-area-inset-left, 0px)); gap: 8px; box-shadow: 0 -10px 30px -18px rgb(61 7 5 / .4); }
   .actionbar a, .actionbar button { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; height: 44px; border-radius: var(--radius); font: 500 11.5px var(--font-text); letter-spacing: .12em; text-transform: uppercase; text-decoration: none; color: var(--burgundy); border: 1px solid var(--rule); background: var(--white); cursor: pointer; }
   .actionbar .main { background: var(--burgundy); border-color: var(--burgundy); color: var(--cream); }
+  /* Inside a section the bar drops to two buttons: that section's next step, and Call. */
+  .actionbar[data-mode="wedding"], .actionbar[data-mode="celebration"] { grid-template-columns: 1.6fr 1fr; }
+  .actionbar[data-mode="call"] { grid-template-columns: 1fr; }
   /* once the chat has been opened, its bubble gets its own slot at the right instead of covering "Call" */
   .chat-on .actionbar { padding-right: calc(78px + env(safe-area-inset-right, 0px)); transition: padding .3s var(--ease-out); }
   .actionbar svg { width: 18px; height: 18px; }
