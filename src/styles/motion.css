@@ -64,7 +64,7 @@
 .mhero { display: none; }
 @media (max-width: 860px) {
   .hero-home.has-mhero { display: none; }
-  .mhero { display: block; position: relative; height: calc(100svh - 302px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)); min-height: 340px; max-height: 900px; overflow: hidden; background: var(--ink); color: var(--cream); isolation: isolate; }
+  .mhero { display: block; position: relative; height: calc(100svh - 282px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)); min-height: 340px; max-height: 900px; overflow: hidden; background: var(--ink); color: var(--cream); isolation: isolate; }
   .mhero video, .mhero .mposter { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transform-origin: 50% 40%; }
   .mhero::after { content: ""; position: absolute; inset: 0; z-index: 1; pointer-events: none;
     background: linear-gradient(180deg, rgb(26 14 12 / .25) 0%, rgb(26 14 12 / 0) 28%, rgb(61 7 5 / .55) 58%, rgb(61 7 5 / .94) 100%); }

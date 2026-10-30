@@ -1,13 +1,19 @@
 ---
 import Photo from "./Photo.astro";
-import { Picture } from "astro:assets";
+import { getImage } from "astro:assets";
 import type { ImageMetadata } from "astro";
 import { SITE, T, type Lang } from "../data/site";
-interface Props { lang: Lang; eyebrow: string; h1: string; h1em?: string; intro: string; facts?: string[]; photo?: string; img?: ImageMetadata; imgAlt?: string; imgPos?: string; caption?: boolean }
-const { lang, eyebrow, h1, h1em, intro, facts = [], photo: k, img, imgAlt, imgPos, caption = true } = Astro.props;
+interface Props { lang: Lang; eyebrow: string; h1: string; h1em?: string; intro: string; facts?: string[]; photo?: string; img?: ImageMetadata; imgMobile?: ImageMetadata; imgAlt?: string; imgPos?: string; caption?: boolean }
+const { lang, eyebrow, h1, h1em, intro, facts = [], photo: k, img, imgMobile, imgAlt, imgPos, caption = true } = Astro.props;
 const t = T[lang];
 import { photo } from "../lib/photos";
 const p = k ? photo(k) : null;
+// Hero art direction: the tall 4:5 crop fits the desktop box; a landscape crop
+// keeps the whole subject visible in the wider, shorter mobile hero box.
+const d1 = img ? await getImage({ src: img, width: 600, format: "webp", quality: 80 }) : null;
+const d2 = img ? await getImage({ src: img, width: 1128, format: "webp", quality: 80 }) : null;
+const m1 = imgMobile ? await getImage({ src: imgMobile, width: 760, format: "webp", quality: 78 }) : null;
+const m2 = imgMobile ? await getImage({ src: imgMobile, width: 1240, format: "webp", quality: 78 }) : null;
 ---
 <section class="ohero">
   <div class="wrap">
@@ -23,8 +29,11 @@ const p = k ? photo(k) : null;
       </a>
     </div>
     <figure>
-      {img
-        ? <Picture src={img} alt={imgAlt ?? ""} formats={["webp"]} fallbackFormat="webp" widths={[480, 900, 1128]} sizes="(max-width: 860px) 100vw, 45vw" loading="eager" fetchpriority="high" decoding="async" quality={80} style={imgPos ? `object-position:${imgPos}` : undefined} />
+      {img && d1 && d2
+        ? <picture>
+            {m1 && m2 && <source media="(max-width: 860px)" srcset={`${m1.src} 760w, ${m2.src} 1240w`} sizes="100vw" type="image/webp" />}
+            <img src={d2.src} srcset={`${d1.src} 600w, ${d2.src} 1128w`} sizes="(max-width: 860px) 100vw, 45vw" alt={imgAlt ?? ""} loading="eager" fetchpriority="high" decoding="async" style={imgPos ? `object-position:${imgPos}` : undefined} />
+          </picture>
         : <Photo k={k!} lang={lang} eager sizes="(max-width: 860px) 100vw, 45vw" />}
       {caption && !img && p && <figcaption>{p[lang]}</figcaption>}
       {caption && img && imgAlt && <figcaption>{imgAlt}</figcaption>}
