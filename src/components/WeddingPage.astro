@@ -13,7 +13,6 @@ import { ALL, photo } from "../lib/photos";
 import { SITE, ROUTES, COVERS, FLAVOURS, type Lang } from "../data/site";
 import wheatCream from "../assets/brand/ambrosia-wheat-cream.svg?url";
 import weddingHero from "../assets/brand/wedding-hero.jpg";
-import weddingHeroMobile from "../assets/brand/wedding-hero-mobile.jpg";
 
 interface Props { lang: Lang }
 const { lang } = Astro.props;
@@ -61,7 +60,7 @@ const schema = [
   description={L("Gâteaux de mariage et tables sucrées conçus avec le propriétaire en consultation gratuite. À Laval depuis 1995, livrés à Laval et Montréal.",
     "Wedding cakes and sweet tables designed with the owner in a free consultation. In Laval since 1995, delivered across Laval and Montréal.")}
   ogImage={og?.src} crumbs={[{ name: L("Gâteaux de mariage", "Wedding cakes") }]} schema={schema}>
-  <PageHero lang={lang} photo={COVERS.wedding} img={weddingHero} imgMobile={weddingHeroMobile} caption={false}
+  <PageHero lang={lang} photo={COVERS.wedding} img={weddingHero} caption={false}
     imgAlt={L("Gâteau de mariage blanc à étages, fleurs en pâte à sucre et feuille d\u0027or, dans la fenêtre — Ambrosia, Laval", "White tiered wedding cake with sugar-paste florals and gold leaf, in the window — Ambrosia, Laval")}
     eyebrow={L("Gâteaux de mariage · Laval", "Wedding cakes · Laval")}
     h1={L("Gâteaux de mariage à Laval,", "Wedding cakes in Laval,")} h1em={L("pensés avec vous", "designed with you")}
