@@ -4,3 +4,5 @@ dist/
 .env
 .env.*
 .netlify/
+.astro/
+build.log

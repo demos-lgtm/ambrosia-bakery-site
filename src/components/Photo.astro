@@ -5,7 +5,7 @@ import { Picture, getImage } from "astro:assets";
 import { photo } from "../lib/photos";
 import type { Lang } from "../data/site";
 interface Props { k: string; lang: Lang; sizes?: string; widths?: number[]; eager?: boolean; class?: string; style?: string; alt?: string }
-const { k, lang, sizes = "(max-width: 860px) 100vw, 45vw", widths = [480, 900, 1300], eager = false, class: cls, style, alt } = Astro.props;
+const { k, lang, sizes = "(max-width: 860px) 100vw, 45vw", widths = [480, 900], eager = false, class: cls, style, alt } = Astro.props;
 const p = photo(k);
 if (!p) throw new Error(`Photo not found: ${k}`);
 const PREVIEW = process.env.PREVIEW === "1";
@@ -14,4 +14,4 @@ const a = alt ?? p[lang];
 ---
 {prev
   ? <img src={prev.src} alt={a} width={prev.attributes.width} height={prev.attributes.height} loading={eager ? "eager" : "lazy"} decoding="async" class={cls} style={style} />
-  : <Picture src={p.img} alt={a} formats={["avif", "webp"]} widths={widths} sizes={sizes} loading={eager ? "eager" : "lazy"} fetchpriority={eager ? "high" : "auto"} decoding="async" quality={72} class={cls} style={style} />}
+  : <Picture src={p.img} alt={a} formats={["webp"]} fallbackFormat="webp" widths={widths} sizes={sizes} loading={eager ? "eager" : "lazy"} fetchpriority={eager ? "high" : "auto"} decoding="async" quality={72} class={cls} style={style} />}

@@ -9,8 +9,8 @@ import { ROUTES } from "../data/site";
 const isWed = (k: string) => k.startsWith("mariage/") || k.startsWith("table-sucree/");
 const t = T[lang];
 const PREVIEW = process.env.PREVIEW === "1";
-const formats = PREVIEW ? ["webp"] : ["avif", "webp"];
-const big = await Promise.all(photos.map((p) => getImage({ src: p.img, width: PREVIEW ? 900 : 1400, format: "webp", quality: PREVIEW ? 70 : 78 })));
+const formats = ["webp"];
+const big = await Promise.all(photos.map((p) => getImage({ src: p.img, width: PREVIEW ? 900 : 1100, format: "webp", quality: PREVIEW ? 70 : 72 })));
 const counts = Object.fromEntries(filters.map((f) => [f.tag, photos.filter((p) => p.tags.includes(f.tag)).length]));
 ---
 <section class={`band ${band}`} id={id}>
@@ -40,7 +40,7 @@ const counts = Object.fromEntries(filters.map((f) => [f.tag, photos.filter((p) =
     <div class="grid" data-gallery>
       {photos.map((p, i) => (
         <button class="tile" type="button" data-i={i} data-tags={p.tags.join(" ")} data-src={big[i].src} data-cap={p[lang]} data-ref={p.ref} data-wed={isWed(p.key) ? "1" : undefined} aria-label={`${p[lang]}. ${lang === "fr" ? "Agrandir" : "Enlarge"}`}>
-          {PREVIEW ? <img src={big[i].src} alt={p[lang]} width={big[i].attributes.width} height={big[i].attributes.height} loading={i < 4 ? "eager" : "lazy"} decoding="async" /> : <Picture fallbackFormat={process.env.PREVIEW === "1" ? "webp" : undefined} src={p.img} alt={p[lang]} formats={formats} widths={PREVIEW ? [480] : [360, 720]} sizes="(max-width: 640px) 50vw, (max-width: 1100px) 33vw, 300px" loading={i < 4 ? "eager" : "lazy"} decoding="async" fetchpriority={i < 2 ? "high" : "auto"} quality={70}  />}
+          {PREVIEW ? <img src={big[i].src} alt={p[lang]} width={big[i].attributes.width} height={big[i].attributes.height} loading={i < 4 ? "eager" : "lazy"} decoding="async" /> : <Picture fallbackFormat="webp" src={p.img} alt={p[lang]} formats={formats} widths={PREVIEW ? [480] : [360, 720]} sizes="(max-width: 640px) 50vw, (max-width: 1100px) 33vw, 300px" loading={i < 4 ? "eager" : "lazy"} decoding="async" fetchpriority={i < 2 ? "high" : "auto"} quality={70}  />}
           <span class="cap" aria-hidden="true">{p[lang]}</span>
         </button>
       ))}
