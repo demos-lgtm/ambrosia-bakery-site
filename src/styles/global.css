@@ -428,11 +428,18 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .stat { border-top: 1px solid rgb(229 195 118 / .5); padding-top: 14px; }
 .stat b { display: block; font-family: var(--font-display); font-weight: 400; font-size: clamp(42px, 5vw, 64px); line-height: 1; color: var(--gold-light); font-variant-numeric: tabular-nums; }
 .stat span { display: block; margin-top: 8px; font-size: 15px; color: #F3E6DA; }
-.reels { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(200px, 22%); gap: 14px; overflow-x: auto; scroll-snap-type: x mandatory; padding-bottom: 10px; }
-@media (max-width: 700px) { .reels { grid-auto-columns: 62%; } }
-.reel { scroll-snap-align: start; position: relative; border-radius: 14px; overflow: hidden; aspect-ratio: 9/16; background: var(--ink); }
-.reel video { width: 100%; height: 100%; object-fit: cover; }
-.reel span { position: absolute; left: 12px; bottom: 12px; font-size: 12.5px; color: #fff; text-shadow: 0 1px 4px rgb(0 0 0 / .5); }
+/* Instagram preview grid: 10 post thumbnails that link out to the account. */
+.ig-grid { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; }
+.ig-tile { display: block; position: relative; aspect-ratio: 1; overflow: hidden; border-radius: 2px; background: var(--paper-deep); }
+.ig-tile img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 600ms var(--ease-out); }
+.ig-tile:hover img, .ig-tile:focus-visible img { transform: scale(1.05); }
+.ig-play { position: absolute; right: 8px; top: 8px; width: 20px; height: 20px; color: #fff; filter: drop-shadow(0 1px 3px rgb(0 0 0 / .55)); }
+.ig-play svg { width: 100%; height: 100%; display: block; }
+@media (max-width: 860px) {
+  /* one swipeable row on phones, so ten tiles stay compact */
+  .ig-grid { grid-template-columns: repeat(10, 40vw); grid-auto-flow: column; overflow-x: auto; scroll-snap-type: x mandatory; padding-bottom: 10px; }
+  .ig-grid li { scroll-snap-align: start; }
+}
 
 /* Forms */
 .form { display: grid; gap: 18px; max-width: 760px; }

@@ -50,7 +50,20 @@ const wedSteps = lang === "fr" ? [
   ["IV · The big day", "Delivered, set up,", "perfect", "We deliver to your venue in Laval, Montréal and nearby. Fees depend on distance.", "mariage/007"],
 ];
 const wedImgs = PREVIEW ? null : null;
-const reels = ["img-9507", "img-6674", "img-4018", "img-9508", "img-6804", "img-6809"];
+// Instagram preview: the 10 posts the account currently leads with, each linking to the post.
+// Thumbnails are stored locally because Instagram's CDN URLs are signed and expire.
+const IG: { f: string; reel: boolean; href: string }[] = [
+  { f: "ig-01", reel: true,  href: "https://www.instagram.com/ambrosiabakeryinc/reel/DdtiTptuU_E/" },
+  { f: "ig-02", reel: true,  href: "https://www.instagram.com/ambrosiabakeryinc/reel/DfIEDCrR2Bb/" },
+  { f: "ig-03", reel: false, href: "https://www.instagram.com/ambrosiabakeryinc/p/DfCosjuhkmo/" },
+  { f: "ig-04", reel: false, href: "https://www.instagram.com/ambrosiabakeryinc/p/De1kqI7B_ux/" },
+  { f: "ig-05", reel: true,  href: "https://www.instagram.com/ambrosiabakeryinc/reel/DeuX970hnPF/" },
+  { f: "ig-06", reel: false, href: "https://www.instagram.com/ambrosiabakeryinc/p/Dejlkr-BDnp/" },
+  { f: "ig-07", reel: true,  href: "https://www.instagram.com/ambrosiabakeryinc/reel/Dee-ChqxPYD/" },
+  { f: "ig-08", reel: false, href: "https://www.instagram.com/ambrosiabakeryinc/p/DeRih7Ov4OM/" },
+  { f: "ig-09", reel: true,  href: "https://www.instagram.com/ambrosiabakeryinc/reel/DeHVkGbxJcr/" },
+  { f: "ig-10", reel: false, href: "https://www.instagram.com/ambrosiabakeryinc/p/Dd30ns8pcHl/" },
+];
 const pastries = ["Baklava", "Galaktoboureko", "Bougatsa", "Kataïfi", "Karidopita", "Loukoumades", "Spanakopita", "Tiropita", "Tsoureki", lang === "fr" ? "Gâteau au fromage" : "Cheesecake", "Croissants", lang === "fr" ? "Pain frais" : "Fresh bread"];
 
 const schema = [{ "@context": "https://schema.org", "@type": "WebSite", name: SITE.name, alternateName: SITE.altName, url: `${SITE.url}/`, inLanguage: ["fr-CA", "en-CA"] }];
@@ -212,14 +225,17 @@ const desc = L("Pâtisserie familiale à Laval depuis 1995 : gâteaux de mariage
 
   <section class="band">
     <div class="wrap">
-      <div class="rail-head"><div class="sec-head"><span class="label">Instagram · {SITE.instagramHandle}</span><h2>{L("Dans la cuisine,", "In the kitchen,")} <em>{L("cette semaine", "this week")}</em></h2></div>
+      <div class="rail-head"><div class="sec-head"><span class="label">Instagram · {SITE.instagramHandle}</span><h2>{L("Dans la cuisine,", "In the kitchen,")} <em>{L("chez Ambrosia", "at Ambrosia")}</em></h2></div>
         <a class="btn outline" href={SITE.instagram} rel="noopener">{L("Suivre", "Follow")} {SITE.instagramHandle}</a></div>
-      <div class="reels">
-        {reels.map((r) => (
-          <div class="reel"><video muted loop playsinline preload="none" poster={`/media/reels/${r}-poster.jpg`} data-reel><source src={`/media/reels/${r}.mp4`} type="video/mp4"></video><span>{SITE.instagramHandle}</span></div>
+      <ul class="ig-grid">
+        {IG.map((p, i) => (
+          <li><a class="ig-tile" href={p.href} rel="noopener" target="_blank" aria-label={L(`Publication ${i + 1} sur Instagram`, `Post ${i + 1} on Instagram`)}>
+            <img src={`/media/instagram/${p.f}.webp`} alt="" width="420" height="420" loading="lazy" decoding="async">
+            {p.reel && <span class="ig-play" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></span>}
+          </a></li>
         ))}
-      </div>
-      <p class="soft" style="margin-top:14px">{L("Nos sketchs drôles arrivent bientôt ici. En attendant, ils sont sur Instagram.", "Our funny skits are coming here soon. Meanwhile, they're on Instagram.")}</p>
+      </ul>
+      <p class="soft" style="margin-top:14px">{L("Touchez une publication pour l'ouvrir dans Instagram.", "Tap a post to open it on Instagram.")}</p>
     </div>
   </section>
 

@@ -30,7 +30,7 @@
     @keyframes rise { from { transform: translateY(22px); opacity: .25; } to { transform: none; opacity: 1; } }
 
     /* Occasion rails: cards grow as they reach the centre, like a coverflow */
-    .rail .occ, .reels .reel { animation: flow linear both; animation-timeline: view(inline); animation-range: entry 0% exit 100%; }
+    .rail .occ { animation: flow linear both; animation-timeline: view(inline); animation-range: entry 0% exit 100%; }
     @keyframes flow { 0% { transform: scale(.88); opacity: .7; } 40%, 60% { transform: scale(1); opacity: 1; } 100% { transform: scale(.88); opacity: .7; } }
 
     /* Mobile hero: video recedes, copy lifts faster (parallax) as you scroll away */
